@@ -22,7 +22,7 @@ export const TodoPresetnerRedux : React.FC<todoPresetnerReduxProps> = ({
         }
     return (
         <>
-            <div>ReduxのTodoリスト</div>
+            <div>Redux-ToolkitのTodoリスト</div>
             <form>
                 <label>
                     タイトル：
