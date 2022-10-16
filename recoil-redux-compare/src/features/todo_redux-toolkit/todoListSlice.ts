@@ -5,14 +5,7 @@ import { RootState } from "./store";
 export const todosSlice = createSlice({
     name: 'todos',
     initialState: {
-        todos : [
-            {
-                id: 0,
-                title: "sample",
-                content: "discreption",
-                isCompleted: false
-            }
-        ] as Todo[]
+        todos : [] as Todo[]
     },
     reducers: {
         add: (state , action: PayloadAction<Todo>) => {

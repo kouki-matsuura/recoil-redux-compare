@@ -1,7 +1,6 @@
 import React from 'react';
 import './App.css';
-import { Counter } from './features/counter/counter';
-import { TodoContainerRedux } from './features/todo_redux/todoContainerRedux';
+import { TodoContainerRedux } from './features/todo_redux-toolkit/todoContainerRedux';
 
 function App() {
   return (

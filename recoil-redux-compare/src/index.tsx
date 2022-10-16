@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { store } from './features/todo_redux/store';
+import { store } from './features/todo_redux-toolkit/store';
+import reduxStore from './features/todo_redux/todoListReducers'
 import { Provider } from 'react-redux';
 
 const root = ReactDOM.createRoot(
@@ -11,7 +12,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
+    <Provider store={reduxStore}>
     <App />
     </Provider>
   </React.StrictMode>
