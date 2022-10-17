@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import todoListReducer from "./todoListSlice";
 
-export const store = configureStore({
+export const reduxToolkitStore = configureStore({
     reducer : {
         todoList : todoListReducer
     },
 })
 
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+export type RootState = ReturnType<typeof reduxToolkitStore.getState>
+export type AppDispatch = typeof reduxToolkitStore.dispatch

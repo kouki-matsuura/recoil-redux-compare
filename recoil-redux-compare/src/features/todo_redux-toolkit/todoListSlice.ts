@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Todo } from "../../../common/todo.types";
-import { RootState } from "./store";
 
 export const todosSlice = createSlice({
     name: 'todos',
@@ -17,19 +16,11 @@ export const todosSlice = createSlice({
             state.todos = state.todos.filter((todo) => todo.id !== action.payload)
         },
         update: (state, action: PayloadAction<Todo>) => {
-            console.log("sliceUpdate")
-            const targetTodo = state.todos.filter((todo) => todo.id === action.payload.id)
-            console.log("targetid:", targetTodo[0].id)
-            state.todos[targetTodo[0].id] = action.payload
+            state.todos.map((todo) => todo.id === action.payload.id ? todo.isCompleted = !todo.isCompleted : todo)
         },
     }
 });
 
 export const { add, remove, update } = todosSlice.actions
-
-export const selectMaxID = (state: RootState) => {
-    const todos = state.todoList.todos
-    return todos.length === 0 ? 0 : todos.slice(-1)[0].id
-}
 
 export default todosSlice.reducer

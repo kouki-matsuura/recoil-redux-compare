@@ -4,24 +4,27 @@ const initialState = {
     todoList : [] as Todo[]
 }
 
-export const todoListReducer = (state = initialState.todoList, action : any) => {
+export const todoListReducer = (state = initialState, action :any) => {
     switch (action.type) {
         case "ADD":
-            return [...state, action.payload]
+            console.log("add:", action.payload)
+            return { todoList: [...state.todoList, action.payload] }
             
         case "UPDATE":
-            const taregtTodo = state.filter((todo) => todo.id === action.payload.id)
-            
-            return [state.slice(0,taregtTodo[0].id),
+            const taregtTodo = state.todoList.filter((todo) => todo.id === action.payload.id)
+            console.log("target:", taregtTodo)
+            return { todoList: [state.todoList.slice(0,taregtTodo[0].id),
                         {...taregtTodo[0],
                          isCompleted: !taregtTodo[0].isCompleted},
-                        state.slice(taregtTodo[0].id+1)]
+                        state.todoList.slice(taregtTodo[0].id+1)]
+                    }
             
         case "REMOVE":
-            return state.filter((todo) => todo.id === action.payload.id)
+            console.log("remove:", action.payload)
+            return {todoList: state.todoList.filter((todo) => todo.id !== action.payload)}
             
         default :
-            return state   
+            return state
     }
 }
 

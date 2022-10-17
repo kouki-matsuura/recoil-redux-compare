@@ -1,12 +1,12 @@
 import { Todo } from "../../../common/todo.types"
 import { useAppDispatch, useAppSelector } from "./hooks"
-import { add, remove, selectMaxID, update } from "./todoListSlice"
+import { add, remove, update } from "./todoListSlice"
 import { TodoPresetnerRedux } from "./todoPresenterRedux"
 
-export const TodoContainerRedux = () => {
+export const TodoContainerReduxToolkit = () => {
     const todos = useAppSelector(state => state.todoList.todos)
     const dispatch = useAppDispatch()
-    const maxID = useAppSelector(selectMaxID);
+    const maxID = todos.length === 0 ? 0 : todos.slice(-1)[0].id;
 
     const addTodo = (title: string, content: string) => {
         const newTodo : Todo = {
@@ -22,8 +22,8 @@ export const TodoContainerRedux = () => {
         dispatch(remove(id))
     }
 
-    const updateTodo = (targetTodo : Todo) => {
-        dispatch(update(targetTodo))
+    const updateTodo = (todo: Todo) => {
+        dispatch(update(todo))
     }
     
     const args = {

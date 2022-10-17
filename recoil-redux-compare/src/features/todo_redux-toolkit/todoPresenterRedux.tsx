@@ -41,7 +41,7 @@ export const TodoPresetnerRedux : React.FC<todoPresetnerReduxProps> = ({
                         <div key={todo.id}>
                         <div>{todo.title} : {todo.isCompleted ? "完了" : "未完了"}</div>
                         <div>内容：{todo.content}</div>
-                        <CompleteButton type='button' onClick={() => updateTodo({...todo, isCompleted: true})}>完了</CompleteButton>
+                        <CompleteButton type='button' onClick={() => updateTodo(todo)}>完了</CompleteButton>
                         <RemoveButton type='button' onClick={() => removeTodo(todo.id)}>削除</RemoveButton>
                         </div>
                     )
