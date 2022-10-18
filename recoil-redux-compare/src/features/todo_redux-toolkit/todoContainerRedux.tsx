@@ -23,6 +23,7 @@ export const TodoContainerReduxToolkit = () => {
     }
 
     const updateTodo = (todo: Todo) => {
+        todo = {...todo, isCompleted: true}
         dispatch(update(todo))
     }
     

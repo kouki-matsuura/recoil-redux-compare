@@ -11,13 +11,16 @@ export const todoListReducer = (state = initialState, action :any) => {
             return { todoList: [...state.todoList, action.payload] }
             
         case "UPDATE":
-            const taregtTodo = state.todoList.filter((todo) => todo.id === action.payload.id)
-            console.log("target:", taregtTodo)
-            return { todoList: [state.todoList.slice(0,taregtTodo[0].id),
-                        {...taregtTodo[0],
-                         isCompleted: !taregtTodo[0].isCompleted},
-                        state.todoList.slice(taregtTodo[0].id+1)]
-                    }
+           return { todoList: state.todoList.map((todo) => {
+               if (todo.id !== action.payload.id) {
+                return todo
+               }
+
+               return {
+                ...todo,
+                ...action.payload
+               }
+           })}
             
         case "REMOVE":
             console.log("remove:", action.payload)

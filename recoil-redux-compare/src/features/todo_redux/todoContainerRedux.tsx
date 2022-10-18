@@ -22,6 +22,7 @@ export const TodoContainerRedux = () => {
     }
 
     const updateTodo = (targetTodo: Todo) => {
+        targetTodo = {...targetTodo, isCompleted: true}
         dispatch({ type: "UPDATE", payload: targetTodo})
     }
     const args = {
