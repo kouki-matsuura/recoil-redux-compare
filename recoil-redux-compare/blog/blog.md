@@ -55,7 +55,9 @@ Reduxと比べて、最大のメリットはコード量が減ることです。
 
 公式はRedux Toolkitの記述法を標準にしてほしく、使用することを強く勧めています。
 
-今後、Reduxを導入したい方はRedux Toolkitで始めると簡単に状態管理できると思われます。また、Reduxを使っていて、Recoilを使いたくはない人にもおすすめできます。
+今後、Reduxを導入したい方はRedux Toolkitで始めると簡単に状態管理できると思われます。
 
 ### 構成図
 Redux Toolkitでは下図のように状態管理をしています。
+
+![ReduxToolkitの構成図](blogimage/reduxtoolkit構成図.png)
