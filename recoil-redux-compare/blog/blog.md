@@ -1,41 +1,21 @@
-# Reactの状態管理のモダン化 -Redux・Redux-toolkitからRecoilへの導入-
+# Reactの状態管理比較表 -Redux・ReduxToolkit・Recoil-
 
 こんにちは！ラクス入社1年目のkoki_matsuraです。
 
-本日は、Reactの代表的な状態管理ライブラリの一つでもあるReduxまたは、Redux-toolkit
-からRecoilへの書き換えを簡単なTodoアプリを通して紹介できればと思います。
+本日は、Redux・ReduxToolkit・Recoilのそれぞれの状態管理方法を簡単なTodoアプリ作成を通して、比較していきたいと思います。
 
 アジェンダは以下の通りです。
 
-- [Reactの状態管理のモダン化 -Redux・Redux-toolkitからRecoilへの導入-](#reactの状態管理のモダン化--reduxredux-toolkitからrecoilへの導入-)
-  - [なぜ、Redux-toolkitからRecoilへ？](#なぜredux-toolkitからrecoilへ)
+- Reactの状態管理比較表 -Redux・ReduxToolkit・Recoil-
   - [Reduxとは](#reduxとは)
-    - [概要](#概要)
-    - [構成図](#構成図)
-
-## なぜ、Redux-toolkitからRecoilへ？
-
-僕が所属しているフロントエンド開発課ではReactにおける状態管理ライブラリにRedux-toolkitを用いていました。
-
-しかし、以下の3点の理由により状態管理ライブラリをRecoilへ移行することになりました。
-
-- Reduxは定義することが多く面倒である
-  
-  Reduxを用いて、Stateの状態を書き換えるにはActioncreator、Action、Reducer、Storeを定義、APIを用いるときはMiddlewareも追加で定義しなければなりません。
-
-  特に、フラグのようなものだけを管理するStateがあったとき、フラグを変えるためだけに ActionからReducerを定義するのはあまりにも面倒だとわかります。
-
-- 状態の流れを追うのが難しい
-  
-  ユーザのイベントからActioncreator、Action、Reducerを通り、古い情報とActionから新しい情報を返すという単方向の流れでもRecoilと比べると、追うのが難しいです。
-
-- 新しいものを使いたい
-  
-  Recoilは現時点で実験的な状態管理ライブラリであるが、Reduxと比べ、構造が単純で扱いやすい点、Hooksとの相性がいい点などに加え、今後、主流のライブラリになる可能性があるため、取り入れました。
-
+    - 概要
+    - 構成図
+  - [Redux Toolkitとは](#redux-toolkitとは)
+    - 概要
+    - 構成図
 ## Reduxとは
 ### 概要
-JavascriptによるSPAは複雑化し続けており、Reactが導入されても、state（状態）の管理は開発者に委ねられています。
+JavascriptによるSPAは複雑化し続けており、Reactが導入され、Viewとロジック部分を切り離せはしましたが、state（状態）の管理は開発者に委ねられています。
 
 Reduxでは、このstateの問題に下記の3原則を取り入れ状態変化の流れを制限することで解決します。
 
@@ -58,4 +38,24 @@ Reduxでは、このstateの問題に下記の3原則を取り入れ状態変化
   また、開発の際にはアプリケーションで一つのreducerを用意しておき、巨大化してくればreducerを分割することもできます。
 
 ### 構成図
+  下図はReduxがどのように状態管理をしているかを簡単に示したものになっています。本来であれば、ComponentとReducerの間にはAPIなどの処理を行うMiddlewaresが挟まりますが、省きました。
   
+  ![Redux構成図](blogimage/Redux構成図.png)
+
+  ComponentはユーザーのイベントからActionCreatorにActionの生成を依頼し、生成されたActionをReducerに対し、dispatchします。Reducerは前回のStateとdispatchされたActionから新たなStateを作り出し、それをStateに返します。StateはComponentに対して、更新を通知し、新しいStateを取得するという流れになっています。
+
+  また、Reduxが参考にしているFluxというデザインパターンではActionCreatorがActionの生成・dispatchまでを担当するのが一般的なのですが、ReduxではテストのしやすさからActionCreatorはActionを生成をするだけがいいかもしれない。
+
+## Redux Toolkitとは
+
+### 概要
+名前の通り、Reduxを用いた開発を効率的に行うためのツールキットです。
+
+Reduxと比べて、最大のメリットはコード量が減ることです。詳しくは下の構成図で説明させていただきます。他にも、可読性が上がることもやTypeScriptとの相性がいいこともメリットです。
+
+公式はRedux Toolkitの記述法を標準にしてほしく、使用することを強く勧めています。
+
+今後、Reduxを導入したい方はRedux Toolkitで始めると簡単に状態管理できると思われます。また、Reduxを使っていて、Recoilを使いたくはない人にもおすすめできます。
+
+### 構成図
+Redux Toolkitでは下図のように状態管理をしています。
