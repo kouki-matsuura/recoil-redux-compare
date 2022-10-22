@@ -16,6 +16,11 @@
   - [Recoilとは](#recoilとは)
     - 概要
     - 構成図
+  - [Todoアプリ作成](#Todoアプリ作成)
+    - [作成する前に](#作成する前に)
+    - [ReduxによるTodoアプリ作成](#ReduxによるTodoTodoアプリ作成)
+    - [Redux ToolkitによるTodoアプリ作成](#Redux-ToolkitによるTodoアプリ作成)
+    - [RecoilによるTodoアプリ作成](#RecoilによるTodoアプリ作成)
 ## Reduxとは
 ### 概要
 JavascriptによるSPAは複雑化し続けており、Reactが導入され、Viewとロジック部分を切り離せはしましたが、state（状態）の管理は開発者に委ねられています。
@@ -56,14 +61,14 @@ Reduxでは、このstateの問題に下記の3原則を取り入れ状態変化
 
 Reduxと比べて、最大のメリットはコード量が減ることです。詳しくは下の構成図で説明させていただきます。他にも、可読性が上がることもやTypeScriptとの相性がいいこともメリットです。
 
-公式はRedux Toolkitの記述法を標準にしてほしく、使用することを強く勧めています。
+Reduxの公式はRedux Toolkitの記述法を標準にしてほしく、使用することを強く勧めています。
 
 今後、Reduxを導入したい方はRedux Toolkitで始めると簡単に状態管理できると思われます。
 
 ### 構成図
 Redux Toolkitでは下図のように状態管理をしています。
 
-![ReduxToolkitの構成図](blogimage/reduxtoolkit構成図.png)
+![ReduxToolkitの構成図](./blogimage/reduxtoolkit%E6%A7%8B%E6%88%90.png)
 
 Reduxの構成図と比べると、少しシンプルになっているのがわかります。具体的にいうと、図からActionCreatorがなくなりました。実際になくなっている訳ではないのですが、ユーザが意識する必要がなくなりました。
 
@@ -79,10 +84,25 @@ Redux Toolkitの良さはこれだけでも十分なのですが、個人的に�
 ## Recoilとは
 
 ### 概要
-RecoilはContextAPIが抱える問題を解決するために提唱された現時点では、実験的な状態管理ライブラリです。
+RecoilはContextAPIが抱えるレンダリングやコード分割の問題を解決するために提唱された、現時点では実験的な状態管理ライブラリであり、アプリケーションの状態をAtomとSelectorの集まりで管理します。
 
-Reduxと比較すると、かなりシンプルになっており簡単に使うことができます。
+ AtomはStateの単位で一意のキーとデータで管理、SelectorはAtomや他Selectorを受け取る純粋な関数です。Atomを加工して取得したりする目的で用いられます。
+ 
+ Reduxで使っていたようなActionCreator、Reducerのようなものはなく、Hooks APIを使って、状態管理を行います。
 
-アプリケーションの状態をAtomとSelectorの集まりで管理します。
+### 構成図
+Recoilは下図のような仕組みの状態管理をしています。
 
- AtomはStateの単位であり、Selectorは純粋な関数です。Atomを更新するためにReduxで使っていたようなActionCreatorやAction、Reducerのようなものは必要ありません。
+![Recoil構成図](./blogimage/recoil構成図.png)
+
+ReduxからStoreやReducer、DispatchによるActionを送る操作がなくなったような図になっています。
+
+理由はコンポーネントからHooks APIを使用することで簡単にAtomやSelectorの値を取得、変更、更新することができるためです。
+
+わざわざ、DisptchでActionをReducerに送ってStateを変更してもらう必要がなくなったからです。
+
+使ってみると、かなり単純で使いやすいことに気づきます。
+
+## Todoアプリ作成
+
+### 作成する前に
