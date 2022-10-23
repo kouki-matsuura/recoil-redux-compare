@@ -6,7 +6,7 @@ type todoPresetnerReduxProps = {
     todos : Todo[],
     addTodo : (title: string, content: string) => void,
     removeTodo : (id : number) => void,
-    updateTodo : (targetTodo : Todo) => void
+    togTodo : (targetTodo : Todo) => void
 }
 export const TodoPresetnerRedux : React.FC<todoPresetnerReduxProps> = ({
     todos,

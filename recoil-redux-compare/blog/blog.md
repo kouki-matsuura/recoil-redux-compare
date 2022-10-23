@@ -16,9 +16,9 @@
   - [Recoilとは](#recoilとは)
     - 概要
     - 構成図
-  - [Todoアプリ作成](#Todoアプリ作成)
+  - [Todoアプリ作成](#todoアプリ作成)
     - [作成する前に](#作成する前に)
-    - [ReduxによるTodoアプリ作成](#ReduxによるTodoTodoアプリ作成)
+    - [ReduxによるTodoアプリ作成](#reduxによるtodoアプリの作成)
     - [Redux ToolkitによるTodoアプリ作成](#Redux-ToolkitによるTodoアプリ作成)
     - [RecoilによるTodoアプリ作成](#RecoilによるTodoアプリ作成)
 ## Reduxとは
@@ -106,3 +106,419 @@ ReduxからStoreやReducer、DispatchによるActionを送る操作がなくな�
 ## Todoアプリ作成
 
 ### 作成する前に
+それぞれの状態管理ライブラリでTodoアプリを作成する前にTodoアプリの仕様と構成を説明します。
+
+構成は以下の画像のようになります。
+
+![Todoリストサンプル](./blogimage/todo%E3%83%AA%E3%82%B9%E3%83%88%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB.png)
+
+入力フォームと送信ボタンTodoのリストを載せる部分で構成されます。
+
+また、それぞれのTodoには内容に加え、完了ボタン、削除ボタンがあります。
+
+仕様を説明します。
+
+・Todoの追加
+
+画像上部のタイトル・内容の入力フォームに適当なテキストを入力し、送信ボタンを押すことでTodoリストに入力したTodoが追加されます。
+
+・Todoリストの表示
+
+画像下部のTodoリストは古いもの（ID昇順）から順に表示されます。最も新しいものは最後尾に表示されます。
+
+・Todoの完了
+
+それぞれのTodoについている完了ボタンを押すと、該当するTodoが未完了から完了に変化します。
+また、完了しているTodoには「戻す」ボタンが表示されており、これは完了ボタンの逆の働きをします。
+
+・Todoの削除
+
+それぞれのTodojについている削除ボタンを押すと、該当するTodoがリストから削除され、表示からも消えます
+
+以上が今回作成していくTodoアプリの仕様になっています。
+
+
+### ReduxによるTodoアプリの作成
+
+#### プロジェクト作成・初期設定
+まずはプロジェクトを作成します。名前は「redux-todo」にします。下記のコマンドを入力してください。
+```
+npx create-react-app redux-todo --template typescript
+
+```
+
+プロジェクトが作成後、Reduxを使うために必要になるので、下記のコマンドでreduxとreact-reduxをインストールします。
+```bash
+cd redux-todo
+npm redux react-redux
+```
+
+#### ディレクトリ構成
+
+Reduxを使う準備もできましたので、次はディレクトリを使っていきます。
+
+Reduxにおけるディレクトリ構成は様々ありますが、今回はそれぞれの役割がわかりやすいように次のような「store」「action(actionCreator)」「state」「reducer」に分けた構成にします。
+
+「src」ディレクトリ以外は特に触らないので、「src」以下の画像を載せます。
+![reduxディレクトリ](blogimage/Redux-todo/reduxディレクトリ構成.png)
+
+appディレクトリとcommonディレクトリ、featuresディレクトリ、featuresディレクトリの中にtodosディレクトリを作成します。
+
+- appディレクトリ
+
+  - App.tsxを移動
+  - store.tsを新規作成
+
+App.tsxを移動させた理由として、ReduxのStoreにアクセスできるのはProviderで囲われたコンポーネントだけで、「App.tsx」の中身を囲って、Todoアプリ全体で状態を共有したかったからです。同じディレクトリに移動させることでどのコンポーネントでProviderが使われているか分かりやすくなります。
+
+- commonディレクトリ
+  - todo.type.tsの新規作成
+  - rootState.type.tsの新規作成
+
+「todo.type.ts」は今回のTodoアプリで出てくるTodoのタイプを定義し、「rootState.type.ts」には現在のStateのタイプを定義しています。色々なファイルから使われると思われるのでcommonディレクトリに作成しました。
+
+- features/todosディレクトリ
+  - action.tsの新規作成
+  - reducer.tsの新規作成
+  - state.tsの新規作成
+  - todoContainer.tsxの新規作成
+  - todoPresenter.tsxの新規作成
+
+本来であれば、todosディレクトリは必要ないのですが、featuresは機能を管理するディレクトリなので、todosを挟みました。
+
+action.tsは構成図で表すと、ActionCreatorの役割を果たします。
+
+state.tsは状態の定義、reducerはactionを受けて、状態を更新する役割を果たします。
+
+#### Storeの定義
+
+最初は状態管理の元となるStoreを定義します。「store.ts」に下記のように書きます。
+
+```typescript
+import { legacy_createStore as createStore } from 'redux'
+
+export const store = createStore(todosReducer)
+```
+createStoreに引数でReducerを入れることでstoreが出来上がります。
+この時、todoReducerは未作成なのでエラーが出ていて大丈夫です。
+
+注意点：
+
+現在、createStoreは公式から推奨されていないので、1文目のインポート文を入れないとエラーが起きます。
+
+#### Stateの定義・Todo型の定義
+Stateは共有したい状態を記述します。
+
+StateはTodoのリストを管理するので、Todo型の配列を初期値にしたいです。
+
+Todo型はまだ定義していないので、「todo.type.ts」に下記のように定義します。
+```typescript
+export type Todo = {
+    id : number;
+    title : string;
+    content : string;
+    isCompleted : boolean;
+}
+```
+それぞれのTodoは「id」「title」「content」「isCompleted」を持ちます。
+
+Todo型を定義できたので、Stateを「state.ts」に下記のように定義します。
+
+適当なデータを2つ入れておきます。
+```typescript
+import { Todo } from "../../common/todo.type";
+
+export const state = {
+    todos: [
+        {
+        id: 1,
+        title: "テスト1",
+        content: "テスト1の内容",
+        isCompleted: false
+        },{
+        id: 2,
+        title: "テスト2",
+        content: "テスト2の内容",
+        isCompleted: false
+        }
+    ] as Todo[]
+}
+```
+
+#### Reducerの定義
+
+Stateが定義できたので、Reducerを「reducer.ts」定義します。
+今回のTodoアプリの仕様では、「追加」「削除」「完了・未完了のスイッチ」の機能が必要ですが、一旦、何もしないReducerにしておきます。
+```typescript
+import { state as initialState } from "./state";
+
+export const todosReducer = (state = initialState, action: any) => {
+    return state
+}
+```
+Reducerでは、第一引数に前のState、第二引数にActionを受け取ります。
+
+ActionはActionCreatorで作成されるもので「type」を必ず持っており、必要に応じて、「payload」を持ちます。
+
+一応、Reducerを定義できました。「store.ts」にReducerのインポート文を追加すれば、エラーがなくなるはずです。
+
+#### ActionCreatorの定義
+ActionCreatorは名前の通り、Actionを作る役割をします。
+
+ Actionを作る役割と言っても、typeとpayloadをオブジェクトで返すだけです。
+
+typeの名前とpayloadの型がReducerのものと合わせる必要がありますが、まだReducerの方で処理を書いていないので、こちらを基準にしていきます。
+
+下記のようにしましょう。
+```typescript
+import { Todo } from "../../common/todo.type";
+/** Todoを加えるアクションを返す */
+export const addTodoAction = (newTodo : Todo) => {
+    return {
+        type: "ADD",
+        payload: newTodo
+    }
+}
+/** Todoを更新するアクションを返す */
+export const toggleCompleteAciton = (id : number) => {
+    return {
+        type: "TOGGLE_COMPLETE",
+        payload: id
+    }
+}
+/** Todoを削除するアクションを返す */
+export const removeTodoAction = (id : number) => {
+    return {
+        type: "REMOVE",
+        payload: id
+    }
+}
+```
+
+#### todoContainer.tsxの定義・RootState型の定義
+このファイルではTodoアプリのロジック部分を担当します。
+
+useSelectorを使うことでStateを取得できます。Stateの型はRootStateという名前にします。
+
+RootStateとTodoPresenterはまだ定義していないためエラーが出ていても問題ありません。
+```typescript
+import { useSelector } from "react-redux"
+
+export const TodoContainer = () => {
+    const todos = useSelector((state: RootState) => state.todos)
+
+    const args = {
+        todos,
+    }
+    return <TodoPresenter {...args} />
+}
+
+```
+「rootState.type.ts」に下記のようにRootState型を定義します。
+```typescript
+import { store } from "../app/store";
+
+export type RootState = ReturnType<typeof store.getState>
+```
+「store.getState」はインポートしたStoreから全てのStateを取得できます。その型をRootStateに入れています。
+
+このRootState型をTodoContainerにインポートすれば、型エラーはなくなります。
+
+#### todoPresenter.tsxの定義
+このアプリではTodoアプリの表示部分を担当します。
+
+Todoリストを表示します。
+まずは、色々な機能を作る前に基盤を作りたいので下記のようなコードにします。
+```typescript
+import React, { useState } from "react"
+import { Todo } from "../../common/todo.type"
+
+type TodoPresenterProps = {
+    todos : Todo[]
+}
+export const TodoPresenter : React.FC<TodoPresenterProps> = ({
+    todos,
+}) => {
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+    
+    return (
+    <>
+    <form>
+        <label>
+            タイトル：
+            <input type="text" value={title} onChange={e => setTitle(e.target.value)} />
+        </label>
+        <label>
+            内容：
+            <input type="text" value={content} onChange={e => setContent(e.target.value)} />
+        </label>
+        <button type="button">送信</button>
+    </form>
+    <div>-------------------------</div>
+    <h1>Todoリスト</h1>
+    {todos.map((todo : Todo)=> {
+        return ( 
+            <React.Fragment key={todo.id}>
+                <div>{todo.title} : {todo.isCompleted ? "完了" : "未完了"}</div>
+                <div>内容：{todo.content}</div>
+                <button type='button'>{todo.isCompleted ? "戻す" : "完了"}</button>
+                <button type='button'>削除</button>
+            </React.Fragment>
+        )
+    })}
+    </>
+    )
+}
+```
+入力部にはタイトルと内容の入力フォームとまだ機能のついていない送信ボタンを配置しています。
+
+出力部にはTodoリストをmap関数で出力しています。それぞれのTodoにつくボタンも現時点では機能がついていません。
+
+一旦、これで置いておきます。
+
+#### Providerの設定
+必要なファイルはすべて完了しました。しかし、これだけでは状態を管理できません。
+
+ReduxではStateを共有したいコンポーネントをProvdierで囲むことで機能します。
+
+今回の場合では、TodoContainer内だけでStateを共有したいです。
+
+なので、「App.tsx」の元のコードを消して、次のようなコードに変えてください。
+```typescript
+import React from 'react';
+import { Provider } from 'react-redux'
+import { store } from "./store"
+import { TodoContainer } from '../features/todos/todoContainer';
+function App() {
+  return (
+    <div className="App">
+      <Provider store={store}>
+        <TodoContainer />
+      </Provider>
+    </div>
+  );
+}
+
+export default App;
+
+```
+これでTodoContainer内でStateの情報を共有できるようになりました。
+
+#### アプリの起動
+下記のコマンドで起動してみましょう。
+```bash
+npm start
+```
+自動で開くと思いますが、開かない方は「http://localhost:3000/」にアクセスしてください。
+
+次のようにStateを定義したときに入れたサンプルデータが2件分、表示されていればうまくいっています。
+
+![redux-todo-test1](blogimage/Redux-todo/redux-todo-test1.png)
+#### Todoの追加機能
+送信ボタンを押すと、Todoを追加できるようにします。
+
+構成図の通りに説明すると、TodoContainerでActionCreatorに追加処理のActionを作成してもらって、それをdispatch関数でReducerに流す処理を書きます。
+
+まずは、「todoContainer.tsx」に新しいTodoのタイトルと内容を引数にとって、ReducerにActionを送る関数を作ります。
+
+関数の名前は「addTodo」にします。次のコードを「todoContainer.tsx」のtodosとargsの間に加えてください。
+```typescript
+const maxID = todos.length ? todos.slice(-1)[0].id : 0;
+const dispatch = useDispatch();
+
+const addTodo = (title: string, content: string) => {
+    const newTodo : Todo = {
+        id: maxID+1,
+        title: title,
+        content: content,
+        isCompleted: false
+    }
+    dispatch(addTodoAction(newTodo));
+ }
+```
+dispatch関数は「react-redux」から、addTodoActionは「action.ts」からインポートします。
+
+maxIDはTodoリストの最大のIDを取得してきます。もし、Todoが0個の場合は0を返すようにします。
+
+argsにaddTodo関数を追加して、「todoPresenter.tsx」に渡しましょう。
+「todoPresenter.tsx」では、送信ボタンを押下時にaddTodo関数を実行するようにしたいです。
+
+なので、addTodo関数を実行し、その後に入力内容を空にするsendTodo関数を作成します。その関数を送信ボタン押下時に実行させるように下記のコードを「todoPresenter.tsx」に追加します。
+```typescript
+ const sendTodo = () => {
+        addTodo(title, content);
+        setTitle("");
+        setContent("");
+　}
+
+//省略
+
+ <button type="button" onClick={() => addTodo(title, content)}>送信</button>
+```
+これで、送信ボタンを押下時に、addTodo関数を実行できます。
+
+ReducerでこのAction(type: "ADD", payload: newTodo)に合う処理を書きます。
+
+「reducer.ts」を次のように書き換えます。
+```typescript
+export const todosReducer = (state = initialState, action : any) => {
+    switch (action.type) {
+        case "ADD":
+            return { todos: [...state.todos, action.payload] }
+        default:
+            return state;
+    }
+}
+```
+Reducerでは、action.typeを見て、処理を変えます。
+
+action.typeは「action.ts」で定義したものと一致させないといけません。
+
+また、注意点としてReduxの原則にも書いてありますが、Stateを直接変更するのではなく、前のStateとActionから新しいStateを作り出すようにします。これが個人的に少し躓きやすい点かなと思います。
+
+これで、追加の処理が書けました。実際に、入力部にタイトルと内容を入力して送信ボタンを押すと、既存のリストの下に追加されていることが確認できると思います。
+
+
+#### Todoの削除機能
+追加処理と仕組みは同じです。
+
+それぞれのTodoについている削除ボタンを押すと、リストから削除されるようにします。
+
+「todoContainer.tsx」にAddTodo関数と同様にremoveTodo関数を次のように作ります。
+```typescript
+const removeTodo = (id: number) => {
+        dispatch(removeTodoAction(id))
+    }
+```
+argsにremoveTodo関数を渡して、「todoPresenter.tsx」では、削除ボタンを押したときに削除したいTodoのidを引数にしてremoveTodo関数を実行するようにします。
+
+下記のように「todoPresenter.tsx」の削除ボタンを変更してください。
+```typescript
+<button type='button' onClick={() => removeTodo(todo.id)}>削除</button>
+```
+削除ボタン押下時に、removeTodoが実行されるようになったので、ReducerでこのAction(type: REMOVE, payload: id)に合う処理を書きます。
+
+次のようにswitch分にcaseを増やすような形で書いてください。
+```typescript
+ case "REMOVE":
+            return {todos : state.todos.filter((todo) => todo.id !== action.payload)}
+```
+これで、削除ボタンを押すと、該当のTodoがリストから消えるようになります。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
