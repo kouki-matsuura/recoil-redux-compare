@@ -5,11 +5,13 @@ type TodoPresenterProps = {
     todos : Todo[]
     addTodo: (title:string, content: string) => void
     removeTodo: (id: number) => void
+    toggleComplete: (id: number) => void
 }
 export const TodoPresenter : React.FC<TodoPresenterProps> = ({
     todos,
     addTodo,
-    removeTodo
+    removeTodo,
+    toggleComplete
 }) => {
 
     const [title, setTitle] = useState("");
@@ -41,7 +43,7 @@ export const TodoPresenter : React.FC<TodoPresenterProps> = ({
             <React.Fragment key={todo.id}>
                 <div>{todo.title} : {todo.isCompleted ? "完了" : "未完了"}</div>
                 <div>内容：{todo.content}</div>
-                <button type='button'>{todo.isCompleted ? "戻す" : "完了"}</button>
+                <button type='button' onClick={() => toggleComplete(todo.id)}>{todo.isCompleted ? "戻す" : "完了"}</button>
                 <button type='button' onClick={() => removeTodo(todo.id)}>削除</button>
             </React.Fragment>
         )

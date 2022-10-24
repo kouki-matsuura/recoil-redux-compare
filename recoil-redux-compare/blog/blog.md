@@ -2,7 +2,9 @@
 
 こんにちは！ラクス入社1年目のkoki_matsuraです。
 
-本日は、Redux・ReduxToolkit・Recoilのそれぞれの状態管理方法を簡単なTodoアプリ作成を通して、比較していきたいと思います。
+本日は、Redux・ReduxToolkit・Recoilのそれぞれの状態管理方法や仕組みを簡単なTodoアプリ作成を通して、比較していきたいと思います。
+
+かなり長いので、特定の状態管理について知りたい方はアジェンダのリンクから飛ぶとスムーズに読めると思われます。
 
 アジェンダは以下の通りです。
 
@@ -19,6 +21,19 @@
   - [Todoアプリ作成](#todoアプリ作成)
     - [作成する前に](#作成する前に)
     - [ReduxによるTodoアプリ作成](#reduxによるtodoアプリの作成)
+      - [プロジェクト作成・初期設定](#プロジェクト作成・初期設定)
+      - [ディレクトリ構成](#ディレクトリ構成)
+      - [Storeの定義](#storeの定義)
+      - [Stateの定義・Todo型の定義](#stateの定義・todo型の定義)
+      - [Reducerの定義](#reducerの定義)
+      - [ActionCreatorの定義](#actioncreatorの定義)
+      - [todoContainer.tsxの定義・RootState型の定義](#todocontainertsxの定義・rootstate型の定義)
+      - [todoPresenter.tsxの定義](#todopresentertsxの定義)
+      - [Providerの定義](#providerの設定)
+      - [アプリの起動](#アプリの起動)
+      - [Todoの追加機能](#todoの追加機能)
+      - [Todoの削除機能](#todoの削除機能)
+      - [完了・未完了の切り替え機能](#完了・未完了の切り替え機能)
     - [Redux ToolkitによるTodoアプリ作成](#Redux-ToolkitによるTodoアプリ作成)
     - [RecoilによるTodoアプリ作成](#RecoilによるTodoアプリ作成)
 ## Reduxとは
@@ -110,7 +125,7 @@ ReduxからStoreやReducer、DispatchによるActionを送る操作がなくな�
 
 構成は以下の画像のようになります。
 
-![Todoリストサンプル](./blogimage/todo%E3%83%AA%E3%82%B9%E3%83%88%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB.png)
+![Todoリストサンプル](./blogimage/todoリストサンプル.png)
 
 入力フォームと送信ボタンTodoのリストを載せる部分で構成されます。
 
@@ -501,10 +516,58 @@ argsにremoveTodo関数を渡して、「todoPresenter.tsx」では、削除ボ�
 
 次のようにswitch分にcaseを増やすような形で書いてください。
 ```typescript
- case "REMOVE":
-            return {todos : state.todos.filter((todo) => todo.id !== action.payload)}
+case "REMOVE":
+    return {todos : state.todos.filter((todo) => todo.id !== action.payload)}
 ```
 これで、削除ボタンを押すと、該当のTodoがリストから消えるようになります。
+
+#### 完了・未完了の切り替え機能
+それぞれのTodoについている完了ボタンを押すと、タイトルの横の「未完了」テキストが「完了」テキストになるようにします。また、完了ボタンは「戻る」というテキストのボタンに変化します。
+
+この戻るボタンを押すと、完了ボタンとは逆の操作をします。
+
+「todoPresenter.tsx」の完了ボタンとタイトル横のテキストのコードを見てみると、todo.isCompletedで切り替えられることがわかります。
+
+なので、isCompletedを切り替えられる関数を作りましょう。
+```typescript
+<div>{todo.title} : {todo.isCompleted ? "完了" : "未完了"}</div>
+<div>内容：{todo.content}</div>
+<button type='button'>{todo.isCompleted ? "戻す" : "完了"}</button>
+```
+まずは、「todoContainer.tsx」にtoggleComplete関数を次のように作ります。
+```typescript
+const toggleComplete = (id: number) => {
+    dispatch(toggleCompleteAciton(id))
+}
+```
+argsにtoggleComplete関数を追加し、下記のように「todoPresenter.tsx」の完了ボタンを押下時にtoggleComplete関数が実行するようにします。
+```typescript
+<button type='button' onClick={() => toggleComplete(todo.id)}>{todo.isCompleted ? "戻す" : "完了"}</button>
+```
+最後はReducerでActionを受け取り、isCompletedを切り替える処理を書きましょう。
+
+次のコードをswitch文のcaseとして追加することで実装できます。
+```typescript
+case "TOGGLE_COMPLETE":
+    return { todos: state.todos.map((todo) => {
+        if (todo.id !== action.payload) return todo
+        
+        return {...todo, isCompleted : !todo.isCompleted}
+    })}
+```
+完了ボタンを押すと、それぞれのTodoタイトルの横の「未完了」が「完了」に切り替わることが確認できると思います。
+
+これで仕様通りのTodoアプリをReduxを使って作成できました。
+
+かなり定義するものが多かったですし、ファイル数が多いなと思われたのではないでしょうか。
+私自身も、最初使った時はそのように感じました。
+
+Todoアプリのように小さい規模のものだとReduxは少し冗長的で面倒に感じるのですが、大きな規模のアプリになっていくと、それぞれの役割に細かく分けている構成の恩恵を受けやすくなるのかもしれません。
+
+また、今回はそれぞれの役割が分かりやすくなるようにファイルを細かく分けていたのですが、StateとAction、Reducerは密な関係になることが多いので、一つのファイルで管理することもできます。
+
+
+
 
 
 

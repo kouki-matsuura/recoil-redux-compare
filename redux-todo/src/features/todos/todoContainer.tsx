@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { store } from "../../app/store"
 import { RootState } from "../../common/rootState.type"
 import { Todo } from "../../common/todo.type"
-import { addTodoAction, removeTodoAction } from "./action"
+import { addTodoAction, removeTodoAction, toggleCompleteAciton } from "./action"
 import { TodoPresenter } from "./todoPresenter"
 
 export const TodoContainer = () => {
@@ -24,10 +24,16 @@ export const TodoContainer = () => {
     const removeTodo = (id: number) => {
         dispatch(removeTodoAction(id))
     }
+
+    const toggleComplete = (id: number) => {
+        dispatch(toggleCompleteAciton(id))
+    }
+
     const args = {
         todos,
         addTodo,
-        removeTodo
+        removeTodo,
+        toggleComplete
     }
     return <TodoPresenter {...args} />
 }
