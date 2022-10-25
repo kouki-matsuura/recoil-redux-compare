@@ -1,4 +1,4 @@
-import { state as initialState } from "./state";
+import { state as initialState } from "./todoState";
 
 /** TODO: actionをちゃんとした型に直す */
 export const todosReducer = (state = initialState, action : any) => {

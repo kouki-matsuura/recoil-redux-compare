@@ -1,9 +1,8 @@
 import { useDispatch, useSelector } from "react-redux"
-import { store } from "../../app/store"
 import { RootState } from "../../common/rootState.type"
 import { Todo } from "../../common/todo.type"
-import { addTodoAction, removeTodoAction, toggleCompleteAciton } from "./action"
-import { TodoPresenter } from "./todoPresenter"
+import { addTodoAction, removeTodoAction, toggleCompleteAciton } from "./todoAction"
+import { TodoPresenter } from "./TodoPresenter"
 
 export const TodoContainer = () => {
     const todos = useSelector((state : RootState) => state.todos)
