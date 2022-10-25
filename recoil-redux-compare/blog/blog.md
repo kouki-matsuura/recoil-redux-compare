@@ -662,15 +662,28 @@ export type Todo = {
 早速、Sliceを定義していきます。
 
 Sliceの中にはState、Reducer、Actionを記述します。
+Stateには適当なデータを2つ入れておきます。
 
 基本的な書き方は以下のようになります。
-
 ```typescript
 import { createSlice } from "@reduxjs/toolkit";
 import { Todo } from "../../common/todo.type";
 
 const state = {
-  todos: [] as Todo[]
+  todos: [ 
+    {
+      id: 1,
+      title: "テスト1",
+      content: "テスト1の内容",
+      isCompleted: false
+    },
+    {
+      id: 2,
+      title: "テスト2",
+      content: "テスト2の内容",
+      isCompleted: false
+    }
+  ] as Todo[]
 }
 
 export const todoSlice = createSlice({
@@ -685,10 +698,138 @@ createSlice関数に、「name」、「initialState(State)」、「reducer」を
 
 これで最も基本的なSliceを定義できます。
 </details>
+<details>
+<summary>Storeの定義</summary>
+Sliceを定義できたので、次はStoreを定義していきます。
 
+Storeの定義方法もReduxとは少し変わってきます。
+次のようにして、作成できます。
 
+```typescript
+import { configureStore } from "@reduxjs/toolkit"
+import { todoSlice } from "../features/todos/todoSlice"
 
+export const store = configureStore({
+    reducer : todoSlice.reducer
+})
+```
+configureStore関数の中でreducerにtodoSlice内のReducerを渡すことで登録できます。
 
+configureStore関数に登録するReducerが単数の場合は、それがStoreのルートリデューサーとなります。
+
+複数の場合は、combineReducersでReducerをまとめてから登録することをお勧めします。
+
+また、configureStore関数にはreducer以外にも、middleware、devTools、preloadedState、enhancersもオプションとしてあります。
+
+</details>
+
+<details>
+<summary>TodoContainer.tsxの定義・RootState型の定義</summary>
+
+Slice側は仮ではありますが実装できたので、TodoContainer.tsxを定義します。
+
+Reduxの時と全く同じコードです。
+
+RootState型とTodoPresenterはまだ定義していないのでエラーが出ます。
+```typescript
+import { useSelector } from "react-redux"
+
+export const TodoContainer = () => {
+    const todos = useSelector((state : RootState) => state.todos)
+
+    const args = {
+        todos,
+    }
+    return <TodoPresenter {...args} />
+}
+```
+RootState型を定義しましょう。
+
+これもReduxの時と全く同じコードになっています。
+```typescript
+import { store } from "../app/store";
+
+export type RootState = ReturnType<typeof store.getState>
+```
+ストアの全てのStateのタイプをRootState型として定義しています。
+
+この型を「TodoContainer.tsx」にインポートすれば、RootStateのエラーは消えます。
+</details>
+
+<details>
+<summary>TodoPresenter.tsxの定義</summary>
+
+TodoPresenterコンポーネントもReduxの時と全く同じものです。
+```typescript
+import React, { useState } from "react"
+import { Todo } from "../../common/todo.type"
+
+type TodoPresenterProps = {
+    todos : Todo[]
+}
+export const TodoPresenter : React.FC<TodoPresenterProps> = ({
+    todos,
+}) => {
+
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+    
+    return (
+    <>
+    <form>
+        <label>
+            タイトル：
+            <input type="text" value={title} onChange={e => setTitle(e.target.value)} />
+        </label>
+        <label>
+            内容：
+            <input type="text" value={content} onChange={e => setContent(e.target.value)} />
+        </label>
+        <button type="button">送信</button>
+    </form>
+    <div>-------------------------</div>
+    <h1>Todoリスト</h1>
+    {todos.map((todo : Todo)=> {
+        return ( 
+            <React.Fragment key={todo.id}>
+                <div>{todo.title} : {todo.isCompleted ? "完了" : "未完了"}</div>
+                <div>内容：{todo.content}</div>
+                <button type='button'>{todo.isCompleted ? "戻す" : "完了"}</button>
+                <button type='button'>削除</button>
+            </React.Fragment>
+        )
+    })}
+    </>
+    )
+}
+```
+</details>
+
+<details>
+<summary>Providerの定義</summary>
+Providerの扱いもReduxと同じです。
+Stateを使いたいルートコンポーネントを囲う形で使います。
+
+TodoContainerをルートコンポーネントにStateを使いたいので、「App.tsx」を次のように書き換えます。
+
+```typescript
+import { Provider } from "react-redux";
+import { TodoContainer } from "../features/todos/TodoContainer";
+import { store } from "./store";
+
+function App() {
+  return (
+    <div className="App">
+      <Provider store={store}>
+        <TodoContainer />
+      </Provider>
+    </div>
+  );
+}
+
+export default App;
+```
+</details>
 
 
 
