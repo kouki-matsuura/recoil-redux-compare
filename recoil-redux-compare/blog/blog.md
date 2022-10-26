@@ -72,7 +72,7 @@ Reduxでは、このstateの問題に下記の3原則を取り入れ状態変化
   
   アクションがどのようにstateを変更するかはreducerに記述されます。
 
-  reducerは前のstateとactionより、次の状態を返す、副作用のない純粋な関数です。注意点として、状態を変更しているのではなく、新しい状態のオブジェクトを返しています。
+  reducerは前のstateとactionより、次の状態を返す、副作用のない純粋な関数です。注意点として、状態を変更しているのではなく、新しい状態を返しています。
 
   また、開発の際にはアプリケーションで一つのreducerを用意しておき、巨大化してくればreducerを分割することもできます。ただ、分割方法はユーザで決めなければならないのが欠点かもしれません。
 
@@ -252,8 +252,7 @@ Todo型を定義できたので、Stateを「todoState.ts」に下記のよう�
 ```typescript
 import { Todo } from "../../common/todo.type";
 
-export const state = {
-    todos: [
+export const state = {[
         {
         id: 1,
         title: "テスト1",
@@ -265,8 +264,7 @@ export const state = {
         content: "テスト2の内容",
         isCompleted: false
         }
-    ] as Todo[]
-}
+    ] as Todo[]}
 ```
 </details>
 
@@ -350,7 +348,7 @@ RootStateとTodoPresenterはまだ定義していないためエラーが出て�
 import { useSelector } from "react-redux"
 
 export const TodoContainer = () => {
-    const todos = useSelector((state: RootState) => state.todos)
+    const todos = useSelector((state: Todo[]) => state)
 
     const args = {
         todos,
@@ -614,12 +612,12 @@ Todoアプリのように小さい規模のものだとReduxは少し冗長的�
 
 <details>
 <summary>初期設定</summary>
-Redux Toolkitを用いて、開発するにはReduxで用いたライブラリに加え、「@reduxjs/toolkit」を入れなければなりません。
+Redux Toolkitを用いて、開発するには「react-redux」「@reduxjs/toolkit」を入れなければなりません。
 
 下記のコマンドでプロジェクトに入り、それらのライブラリを入れます。
 ```bash
   cd redux-toolkit-todo
-  npm i redux react-redux @reduxjs/toolkit
+  npm i react-redux @reduxjs/toolkit
 ```
 </details>
 
@@ -829,6 +827,24 @@ function App() {
 
 export default App;
 ```
+</details>
+
+<details>
+<summary>アプリの起動</summary>
+
+下記のコマンドで起動してみましょう。
+```bash
+npm start
+```
+自動で開くと思いますが、開かない方は「http://localhost:3000/」にアクセスしてください。
+
+次のようにStateを定義したときに入れたサンプルデータが2件分、表示されていればうまくいっています。
+![redux-todo-test1](./blogimage/Redux-toolkit-todo/redux-toolkit-test1.png)
+</details>
+
+<details>
+<summary>Todoの追加機能</summary>
+
 </details>
 
 
