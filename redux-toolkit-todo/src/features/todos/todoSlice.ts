@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { bindActionCreators, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Todo } from "../../common/todo.type"
 
 const state = {
@@ -20,7 +20,19 @@ const state = {
 export const todoSlice = createSlice({
     name: 'todoSlice',
     initialState: state,
-    reducers:{
-        //Actionを記述する
+    reducers: {
+        add: (state, action: PayloadAction<Todo>) => {
+            state.todos.push(action.payload)
+        },
+        remove: (state, action: PayloadAction<number>) => {
+            state.todos = state.todos.filter((todo) => todo.id !== action.payload)
+        },
+        toggleComplete: (state, action: PayloadAction<number>) => {
+            state.todos = state.todos.map((todo) => todo.id === action.payload
+            ? {...todo, isComplete: !todo.isCompleted}
+            : todo)
+        }
     }
 })
+
+export const { add, remove, toggleComplete } = todoSlice.actions
