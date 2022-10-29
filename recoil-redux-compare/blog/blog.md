@@ -673,8 +673,7 @@ export type Todo = {
 <summary>Sliceの定義</summary>
 早速、Sliceを定義していきます。
 
-Sliceの中にはState、Reducerを記述します。Action(ActionCreator)はあまり意識する必要がありません。
-
+Sliceの中にはState、Reducer、Actionを記述します。
 Stateには適当なデータを2つ入れておきます。
 
 基本的な書き方は以下のようになります。
@@ -711,7 +710,7 @@ createSlice関数に、「name」、「initialState(State)」、「reducer」を
 
 「name」というのは、Reduxでは出てこなかったのですが、Sliceの名前を示します。また、Actionのタイプのprefixとして用いられます。
 
-なので、Redux ToolkitではあまりAction(ActionCreator)を意識する必要がなくなるのです。
+なので、Redux ToolkitではあまりActionのタイプを意識する必要がなくなるのです。
 
 これで最も基本的なSliceを定義できます。
 </details>
@@ -821,12 +820,13 @@ export const TodoPresenter : React.FC<TodoPresenterProps> = ({
     )
 }
 ```
-</details>
 入力部にはタイトルと内容の入力フォームとまだ機能のついていない送信ボタンを配置しています。
 
 出力部にはTodoリストをmap関数で出力しています。それぞれのTodoにつくボタンも現時点では機能がついていません。
 
 一旦、これで置いておきます。
+</details>
+
 <details>
 <summary>Providerの定義</summary>
 Stateを使いたいルートコンポーネントを囲う形で使います。
@@ -905,7 +905,7 @@ export const { add } = todoSlice.actions
 ```
 Sliceで追加する処理は書けたので、Containerでの処理を書いていきます。
 
-「todoContainer.tsx」でエクスポートしたaddActionをインポート、addActionに追加したいTodoを加えて、Sliceに流す関数を作成します。
+「todoContainer.tsx」でエクスポートしたaddActionをインポートし、addActionに追加したいTodoを加えて、Sliceに流す関数を作成します。
 todosとargsの間に加えてください。
 ```typescript
 const maxID = todos.length ? todos.slice(-1)[0].id : 0;
@@ -928,11 +928,11 @@ argsにaddTodo関数を追加して、「TodoPresenter.tsx」に渡しましょ�
 
 なので、addTodo関数を実行し、その後に入力内容を空にするsendTodo関数を作成します。その関数を送信ボタン押下時に実行させるように下記のコードを「TodoPresenter.tsx」に追加します。
 ```typescript
- const sendTodo = () => {
-        addTodo(title, content);
-        setTitle("");
-        setContent("");
-　}
+const sendTodo = () => {
+    addTodo(title, content);
+    setTitle("");
+    setContent("");
+}
 
 //省略
 
@@ -960,10 +960,10 @@ remove: (state, action: PayloadAction<number>) => {
 export const { add, remove } = todoSlice.actions
 ```
 
-「TodoContainer.tsx」にaddTodo関数と同様にremoveActionをインポート、removeTodo関数の作成をします。
+「TodoContainer.tsx」にaddTodo関数と同様にremoveActionをインポートし、このActionをSliceに流すremoveTodo関数を作成します。
 ```typescript
 const removeTodo = (id: number) => {
-        dispatch(remove(id))
+    dispatch(remove(id))
 }
 ```
 argsにremoveTodo関数を渡して、「TodoPresenter.tsx」では、削除ボタンを押したときに削除したいTodoのidを引数にしてremoveTodo関数を実行するようにします。
@@ -982,23 +982,45 @@ ReduxのTodoアプリ同様の操作でTodoを削除できるようになって�
 
 今回も手順は同じです。まずは、Sliceのreducersに完了・未完了切り替えActionを作ります。
 
-「toggle_complete」という名前にします。Container側から対象のTodoのIDが送られてくることを想定して下記のように作ります。
+「updateComplete」という名前にします。Container側から対象のTodoのIDが送られてくることを想定して下記のようにします。
 
 また、エクスポートもしておきます。
 ```typescript
-toggleComplete: (state, action: PayloadAction<number>) => {
+updateComplete: (state, action: PayloadAction<number>) => {
     state.todos = state.todos.map((todo) => todo.id === action.payload
-    ? {...todo, isComplete: !todo.isCompleted}
+    ? {...todo, isCompleted: !todo.isCompleted}
     : todo)
 }
 
 //省略
 
-export const { add, remove, toggleComplete } = todoSlice.actions
+export const { add, remove, updateComplete } = todoSlice.actions
 ```
+「TodoContainer.tsx」にtoggleCompleteActionをインポートし、このActionをSliceに流すtoggleComplete関数を作成します。
+```typescript
+const toggleComplete = (id: number) => {
+    dispatch(updateComplete(id));
+}
+```
+argsにtoggleComplete関数を渡して、「TodoPresenter.tsx」では、完了ボタンを押したときに対象のTodoのidを引数にしてtoggleComplete関数を実行するようにします。
+
+下記のように「TodoPresenter.tsx」の完了ボタンを変更してください。
+```typescript
+ <button type='button' onClick={() => toggleComplete(todo.id)}>{todo.isCompleted ? "戻す" : "完了"}</button>
+```
+完了ボタンを押すと、それぞれのTodoタイトルの横の「未完了」が「完了」に切り替わることが確認できると思います。
 </details>
 
+<details>
+<summary>まとめ</summary>
+Redux Toolkitを用いたTodoアプリの作成が終わりました。
 
+Reduxと比べると、StateとReducer、ActionをSliceで管理するというのが特徴的だったと思います。また、そのおかげでファイル数も少なく、記述量も少なくなりました。
+
+Stateの更新もミュータブルにできるので単純で分かりやすい印象を受けました。
+
+公式がReduxよりもRedux Toolkitをお勧めする理由もわかります。
+</details>
 
 
 

@@ -27,12 +27,13 @@ export const todoSlice = createSlice({
         remove: (state, action: PayloadAction<number>) => {
             state.todos = state.todos.filter((todo) => todo.id !== action.payload)
         },
-        toggleComplete: (state, action: PayloadAction<number>) => {
+        updateComplete: (state, action: PayloadAction<number>) => {
             state.todos = state.todos.map((todo) => todo.id === action.payload
-            ? {...todo, isComplete: !todo.isCompleted}
+            ? {...todo, isCompleted: !todo.isCompleted}
             : todo)
+            console.log("todos:", state.todos)
         }
     }
 })
 
-export const { add, remove, toggleComplete } = todoSlice.actions
+export const { add, remove, updateComplete } = todoSlice.actions
