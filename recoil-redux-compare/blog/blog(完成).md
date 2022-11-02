@@ -1,5 +1,3 @@
-# ToDoアプリ作成を通したReactの状態管理ライブラリの基礎 - Redux・Redux Toolkit・Recoil -
-
 こんにちは！ラクス入社1年目のkoki_matsuraです。
 
 本日は、Redux・ReduxToolkit・Recoilのそれぞれの基本的な状態管理や仕組みをTodoアプリ作成を通して、ご紹介させていただきます。
@@ -10,82 +8,26 @@ Reactの状態管理ライブラリを勉強している方、状態管理ライ
 
 アジェンダは以下の通りです。
 
-- ToDoアプリ作成を通したReactの状態管理比較 -Redux・ReduxToolkit・Recoil-
-  - [Reduxとは](#reduxとは)
-    - 概要
-    - 構成図
-  - [Redux Toolkitとは](#redux-toolkitとは)
-    - 概要
-    - 構成図
-  - [Recoilとは](#recoilとは)
-    - 概要
-    - 構成図
-  - [Todoアプリ作成](#todoアプリ作成)
-    - [作成する前に](#作成する前に)
-      - [サンプルと仕様説明](#サンプルと仕様説明)
-      - [プロジェクト作成](#プロジェクト作成)
-    - [ReduxによるTodoアプリ作成](#reduxによるtodoアプリの作成)
-      - 初期設定
-      - ディレクトリ構成
-      - Stateの定義・Todo型の定義
-      - Reducerの定義
-      - Storeの定義
-      - ActionCreatorの定義
-      - TodoContainer.tsxの定義・RootState型の定義
-      - TodoPresenter.tsxの定義
-      - Providerの定義
-      - アプリの起動
-      - Todoの追加機能
-      - Todoの削除機能
-      - 完了・未完了の切り替え機能
-      - まとめ
-    - [Redux ToolkitによるTodoアプリ作成](#redux-toolkitによるtodoアプリの作成)
-      - 初期設定
-      - ディレクトリ構成
-      - Todo型の定義
-      - Sliceの定義
-      - Storeの定義
-      - TodoContainer.tsxの定義・RootState型の定義
-      - TodoPresenter.tsxの定義
-      - Providerの定義
-      - アプリの起動
-      - Todoの追加機能
-      - Todoの削除機能
-      - 完了・未完了の切り替え機能
-      - まとめ
-    - [RecoilによるTodoアプリ作成](#RecoilによるTodoアプリ作成)
-      - 初期設定
-      - ディレクトリ構成
-      - Todo型の定義
-      - Keyの定義
-      - Atomの定義
-      - TodoContainer.tsxの定義
-      - TodoPresenter.tsxの定義
-      - RecoilRootの定義
-      - アプリの起動
-      - Selectorの定義
-      - Todoの追加機能
-      - Todoの削除機能
-      - 完了・未完了の切り替え機能
-      - まとめ
-  - [終わりに](#終わりに)
-## Reduxとは
-### 概要
-JavascriptによるSPAは複雑化し続けており、Reactが導入され、Viewとロジック部分を切り離せはしましたが、State（状態）の管理は開発者に委ねられています。
 
+
+[:contents]
+# Reduxとは
+
+## 概要
+JavascriptによるSPAは複雑化し続けており、Reactが導入され、Viewとロジック部分を切り離せはしましたが、State（状態）の管理は開発者に委ねられています。
 Reduxでは、このStateの問題に下記の3原則を取り入れ状態変化の流れを制限することで解決します。
 
-- Single source of truth (ソースは一つだけ)
+**- Single source of truth (ソースは一つだけ)**
   
   アプリケーションの状態は一つのStore内に一つのオブジェクトでツリー型で格納されます。
 
   状態が一つのStoreで管理されるため、デバッグや開発が簡単になります。
 
-- State is read-only (状態は読み取り専用)
+** - State is read-only (状態は読み取り専用)**
 
   状態を変更できるのはActionを持ったオブジェクトのみです。つまり、ビューやコールバックが状態を直接的に変更することはできません。
 
-- Changes are made with pure functions (変更は純粋関数で行われる)
+**- Changes are made with pure functions (変更は純粋関数で行われる)**
   
   アクションがどのようにStateを変更するかはReducerに記述されます。
 
@@ -93,18 +35,20 @@ Reduxでは、このStateの問題に下記の3原則を取り入れ状態変化
 
   また、開発の際にはアプリケーションで一つのReducerを用意しておき、巨大化してくればReducerを分割することもできます。ただ、分割方法はユーザで決めなければならないのが欠点かもしれません。
 
-### 構成図
+## 構成図
   下図はReduxがどのように状態管理をしているかを簡単に示したものになっています。本来であれば、ComponentとReducerの間にはAPIなどの処理を行うMiddlewaresが挟まりますが、今回は省かせていただきました。
   
-  ![Redux構成図](blogimage/REDUX構成図.png)
+<div align="center">
+[f:id:koki_matsura:20221102094542p:plain]
+</div>
 
   ComponentはユーザーのイベントからActionCreatorにActionの生成を依頼し、生成されたActionをReducerに対し、dispatchします。Reducerは前回のStateとdispatchされたActionから新たなStateを作り出し、それをStateに返します。StateはComponentに対して、更新を通知し、新しいStateを取得するという流れになっています。
 
   また、Reduxが参考にしているFluxというデザインパターンではActionCreatorがActionの生成・Actionのdispatchまでを担当するのが一般的なのですが、ReduxではテストのしやすさからActionCreatorはActionを生成をするだけの役割の方がいいかもしれません。
 
-## Redux Toolkitとは
+#Redux Toolkitとは
 
-### 概要
+## 概要
 名前の通り、Reduxを用いた開発を効率的に行うためのツールキットです。
 
 Reduxと比べて、最大のメリットはコード量が減ることです。詳しくは下の構成図で説明させていただきます。他にも、可読性が上がることもやTypeScriptとの相性がいいこともメリットです。
@@ -113,10 +57,11 @@ Reduxの公式はRedux Toolkitの記述法を標準にしてほしく、使用�
 
 今後、Reduxを導入したい方はRedux Toolkitで始めると簡単に状態管理できると思われます。
 
-### 構成図
+## 構成図
 Redux Toolkitでは下図のように状態管理をしています。
-
-![ReduxToolkitの構成図](./blogimage/reduxtoolkit%E6%A7%8B%E6%88%90.png)
+<div align="center">
+[f:id:koki_matsura:20221102094715p:plain]
+</div>
 
 Reduxの構成図と比べると、少しシンプルになっているのがわかります。具体的にいうと、図からActionCreatorがなくなりました。実際になくなっている訳ではないのですが、ユーザが意識する必要がなくなりました。
 
@@ -129,19 +74,20 @@ Redux Toolkitの良さはこれだけでも十分なのですが、個人的に�
 
 これに関しては、実際にコードを書くと有り難みが身に沁みます...。
 
-## Recoilとは
+# Recoilとは
 
-### 概要
+## 概要
 RecoilはContextAPIが抱えるレンダリングやコード分割の問題を解決するために提唱された、現時点では実験的な状態管理ライブラリであり、アプリケーションの状態をAtomとSelectorの集まりで管理します。
 
  AtomはStateの単位で一意のキーとデータで管理、SelectorはAtomや他Selectorを受け取る純粋な関数です。Atomを加工して取得したりする目的で用いられます。
  
  Reduxで使っていたようなActionCreator、Reducerのようなものはなく、Hooks APIを使って、状態管理を行う点がRecoilの特徴です。
 
-### 構成図
+## 構成図
 Recoilは下図のような仕組みの状態管理をしています。
-
-![Recoil構成図](./blogimage/recoil構成図.png)
+<div align="center">
+[f:id:koki_matsura:20221102094723p:plain]
+</div>
 
 ReduxからStoreやReducer、DispatchによるActionを送る操作がなくなったような図になっています。
 
@@ -151,18 +97,19 @@ ReduxからStoreやReducer、DispatchによるActionを送る操作がなくな�
 
 使ってみると、かなり単純で使いやすいことに気づきます。
 
-## Todoアプリ作成
+# Todoアプリ作成
 
-### 作成する前に
+## 作成する前に
 
 Redux・Redux Toolkit・RecoilのそれぞれにおいてTodoアプリを作るので、同じコードや説明のところが多々出てきますが、省略せずに書いているので特定の状態管理ライブラリだけ見たい方などでも問題なくお読みいただけると思います。
 
-#### サンプルと仕様説明
+### 仕様説明
 それぞれの状態管理ライブラリでTodoアプリを作成する前にTodoアプリの仕様と構成を説明します。
 
 構成は以下の画像のようになります。
-
-![Todoリストサンプル](./blogimage/todoリストサンプル.png)
+<div align="center">
+[f:id:koki_matsura:20221102094833p:plain]
+</div>
 
 入力フォームと送信ボタン、Todoのリストを載せる部分で構成されます。
 
@@ -170,33 +117,35 @@ Redux・Redux Toolkit・RecoilのそれぞれにおいてTodoアプリを作る�
 
 仕様を説明します。
 
-・Todoの追加
+**・Todoの追加**
 
 画像上部のタイトル・内容の入力フォームに適当なテキストを入力し、送信ボタンを押すことでTodoリストに入力したTodoが追加されます。
-
-![](blogimage/%E8%BF%BD%E5%8A%A0%E5%87%A6%E7%90%86(%E7%B7%A8%E9%9B%86).mp4)
-
-・Todoリストの表示
+<div align="center">
+[f:id:koki_matsura:20221102163321g:plain]
+</div>
+**・Todoリストの表示**
 
 画像下部のTodoリストは古いもの（ID昇順）から順に表示されます。最も新しいものは最後尾に表示されます。
 
-・Todoの完了
+**・Todoの完了**
 
 それぞれのTodoについている完了ボタンを押すと、該当するTodoが未完了から完了に変化します。
 
 また、完了しているTodoには「戻す」ボタンが表示されており、これは完了ボタンの逆の働きをします。
+<div align="center">
+[f:id:koki_matsura:20221102145008g:plain]
+</div>
 
-![Todoの完了サンプル動画](blogimage/%E5%AE%8C%E4%BA%86%E6%93%8D%E4%BD%9C.mov)
-
-・Todoの削除
+**・Todoの削除**
 
 それぞれのTodoについている削除ボタンを押すと、該当するTodoがリストから削除され、表示からも消えます。
-
-![Todo削除サンプル動画](blogimage/%E5%89%8A%E9%99%A4%E5%87%A6%E7%90%86.mov)
+<div align="center">
+[f:id:koki_matsura:20221102145120g:plain]
+</div>
 
 以上が今回作成していくTodoアプリの仕様になっています。
 
-#### プロジェクト作成
+### プロジェクト作成
 
 プロジェクトの作成は下記のコマンドを入力します。「プロジェクト名」の部分はわかりやすい名前にしておくことをお勧めします。
 
@@ -205,10 +154,10 @@ Redux・Redux Toolkit・RecoilのそれぞれにおいてTodoアプリを作る�
 npx create-react-app [プロジェクト名] --template typescript
 
 ```
-### ReduxによるTodoアプリの作成
+## ReduxによるTodoアプリの作成
 
 <details>
-  <summary>初期設定</summary>
+  <summary style="cursor:pointer;">▶︎初期設定</summary>
 プロジェクト作成後、Reduxを使うために必要になるので、下記のコマンドで作成したプロジェクトに移動して、reduxとreact-reduxをインストールします。
 
 ```bash
@@ -217,15 +166,15 @@ npm i redux react-redux
 ```
 </details>
 <details>
-  <summary>ディレクトリ構成</summary>
+  <summary  style="cursor:pointer;">▶︎ディレクトリ構成</summary>
 Reduxを使う準備もできましたので、次はディレクトリを構成します。
 
 Reduxにおけるディレクトリ構成は様々ありますが、今回は役割がわかりやすいように「store」「action(actionCreator)」「state」「reducer」に分けた構成にします。
 
 「src」ディレクトリ以外は特に触らないので、「src」以下の画像を載せます。
-
-![reduxディレクトリ](./blogimage/Redux-todo/redux-ディレクトリ.png)
-
+<div align="center">
+[f:id:koki_matsura:20221102095000p:plain]
+</div>
 appディレクトリとcommonディレクトリ、featuresディレクトリ、featuresディレクトリの中にtodosディレクトリを作成します。
 
 - appディレクトリ
@@ -255,7 +204,7 @@ App.tsxを移動させた理由として、ReduxのStoreにアクセスできる
 「TodoContainer.tsx」はTodoアプリのロジック部分を、「TodoPresenter.tsx」は表示部分を担当します。
 </details>
 <details>
-<summary>Stateの定義・Todo型の定義</summary>
+<summary  style="cursor:pointer;">▶︎Stateの定義・Todo型の定義</summary>
 最初はStateを定義します。
 Stateは状態のことです。
 
@@ -297,7 +246,7 @@ export const state = {[
 </details>
 
 <details>
-<summary>Reducerの定義</summary>
+<summary  style="cursor:pointer;">▶︎Reducerの定義</summary>
 Stateが定義できたので、Reducerを定義します。
 
 今回のTodoアプリの仕様では、「追加」「削除」「完了・未完了のスイッチ」の機能が必要ですが、一旦、何もしないReducerにしておきます。
@@ -316,7 +265,7 @@ ActionはActionCreatorで作成されるもので「type」を必ず持ってお
 </details>
 
 <details>
-<summary>Storeの定義</summary>
+<summary  style="cursor:pointer;">▶︎Storeの定義</summary>
 状態管理の元となるStoreを定義します。「store.ts」に下記のように書きます。
 
 ```typescript
@@ -328,13 +277,13 @@ export const store = createStore(todosReducer)
 ```
 createStoreに引数でReducerを入れることでstoreが出来上がります。
 
-注意点：
+**注意点**：
 
 現在、createStoreは公式から推奨されていないので、1文目のインポート文を入れないとエラーが起きます。
 </details>
 
 <details>
-<summary>ActionCreatorの定義</summary>
+<summary  style="cursor:pointer;">▶︎ActionCreatorの定義</summary>
 ActionCreatorは名前の通り、Actionを作る役割をします。
 
 Actionを作る役割と言っても、typeとpayloadをオブジェクトで返すだけです。
@@ -370,7 +319,7 @@ export const removeTodoAction = (id : number) => {
 </details>
 
 <details>
-<summary>TodoContainer.tsxの定義・RootState型の定義</summary>
+<summary  style="cursor:pointer;">▶︎TodoContainer.tsxの定義・RootState型の定義</summary>
 このファイルではTodoアプリのロジック部分を担当します。
 
 useSelectorを使うことでStateを取得できます。Stateの型はRootStateという名前にします。
@@ -405,7 +354,7 @@ export type RootState = ReturnType<typeof store.getState>
 </details>
 
 <details>
-<summary>TodoPresenter.tsxの定義</summary>
+<summary  style="cursor:pointer;">▶︎TodoPresenter.tsxの定義</summary>
 このアプリではTodoアプリの表示部分を担当します。
 
 Todoリストを表示します。
@@ -461,7 +410,7 @@ export const TodoPresenter : React.FC<TodoPresenterProps> = ({
 </details>
 
 <details>
-<summary>Providerの設定</summary>
+<summary  style="cursor:pointer;">▶︎Providerの設定</summary>
 必要なファイルはすべて完了しました。しかし、これだけでは状態を管理できません。
 
 ReduxではStateを共有したいコンポーネントをProvdierで囲むことで機能します。
@@ -491,7 +440,7 @@ export default App;
 これでTodoContainer内でStateの情報を共有できるようになりました。
 </details>
 <details>
-<summary>アプリの起動</summary>
+<summary  style="cursor:pointer;">▶︎アプリの起動</summary>
 
 下記のコマンドで起動してみましょう。
 ```bash
@@ -500,11 +449,12 @@ npm start
 自動で開くと思いますが、開かない方は「http://localhost:3000/」にアクセスしてください。
 
 次のようにStateを定義したときに入れたサンプルデータが2件分、表示されていればうまくいっています。
-
-![redux-todo-test1](blogimage/Redux-todo/redux-todo-test1.png)
+<div align="center">
+[f:id:koki_matsura:20221102095110p:plain]
+</div>
 </details>
 <details>
-<summary>Todoの追加機能</summary>
+<summary  style="cursor:pointer;">▶︎Todoの追加機能</summary>
 送信ボタンを押すと、Todoを追加できるようにします。
 
 手順を説明します。
@@ -572,7 +522,7 @@ action.typeは「todoAction.ts」で定義したものと一致させないと�
 これで、追加の処理が書けました。実際に、入力部にタイトルと内容を入力して送信ボタンを押すと、既存のリストの下に追加されていることが確認できると思います。
 </details>
 <details>
-<summary>Todoの削除機能</summary>
+<summary  style="cursor:pointer;">▶︎Todoの削除機能</summary>
 追加処理と仕組みは同じです。
 
 それぞれのTodoについている削除ボタンを押すと、リストから削除されるようにします。
@@ -603,7 +553,7 @@ case "REMOVE":
 </details>
 
 <details>
-<summary>完了・未完了の切り替え機能</summary>
+<summary  style="cursor:pointer;">▶︎完了・未完了の切り替え機能</summary>
 それぞれのTodoについている完了ボタンを押すと、タイトルの横の「未完了」テキストが「完了」テキストになるようにします。また、完了ボタンは「戻る」というテキストのボタンに変化します。
 
 この戻るボタンを押すと、完了ボタンとは逆の操作をします。
@@ -644,7 +594,7 @@ case "TOGGLE_COMPLETE":
 完了ボタンを押すと、それぞれのTodoタイトルの横の「未完了」が「完了」に切り替わることが確認できると思います。
 </details>
 <details>
-<summary>まとめ</summary>
+<summary  style="cursor:pointer;">▶︎まとめ</summary>
 これで仕様通りのTodoアプリをReduxを使って作成できました。
 
 かなり定義するものが多く、ファイル数が多いなと思われたのではないでしょうか。
@@ -656,10 +606,10 @@ Todoアプリのように小さい規模のものだとReduxは少し冗長的�
 </details>
 
 
-### Redux ToolkitによるTodoアプリの作成
+## Redux ToolkitによるTodoアプリの作成
 
 <details>
-<summary>初期設定</summary>
+<summary  style="cursor:pointer;">▶︎初期設定</summary>
 Redux Toolkitを用いて、開発するには「react-redux」「@reduxjs/toolkit」を入れなければなりません。
 
 下記のコマンドでプロジェクトに入り、それらのライブラリを入れます。
@@ -670,10 +620,11 @@ Redux Toolkitを用いて、開発するには「react-redux」「@reduxjs/toolk
 </details>
 
 <details>
-<summary>ディレクトリ構成</summary>
+<summary  style="cursor:pointer;">▶︎ディレクトリ構成</summary>
 Redux Toolkitを用いた時のsrcは以下のようなディレクトリ構成にします。
-
-![reduxToolkitディレクトリ構成](./blogimage/Redux-toolkit-todo/redux-toolkit-ディレクトリ構成.png)
+<div align="center">
+[f:id:koki_matsura:20221102095233p:plain]
+</div>
 
 appディレクトリとcommonディレクトリ、featuresディレクトリ、featuresディレクトリの中にtodosディレクトリを作成します。
 
@@ -703,7 +654,7 @@ Reduxと違う構成をしているのはtodosディレクトリ内だけです�
 </details>
 
 <details>
-<summary>Todo型の定義</summary>
+<summary  style="cursor:pointer;">▶︎Todo型の定義</summary>
 ReduxのTodoアプリ同様に「todo.type.ts」にTodo型を記述します。
 
 ```typescript
@@ -717,7 +668,7 @@ export type Todo = {
 ```
 </details>
 <details>
-<summary>Sliceの定義</summary>
+<summary  style="cursor:pointer;">▶︎Sliceの定義</summary>
 早速、Sliceを定義していきます。
 
 Sliceの中にはState、Reducer、Actionを記述します。
@@ -763,7 +714,7 @@ createSlice関数に、「name」、「initialState(State)」、「reducer」を
 これで最も基本的なSliceを定義できます。
 </details>
 <details>
-<summary>Storeの定義</summary>
+<summary  style="cursor:pointer;">▶︎Storeの定義</summary>
 Sliceを定義できたので、次はStoreを定義していきます。
 
 Storeの定義方法もReduxとは少し変わってきます。
@@ -789,7 +740,7 @@ configureStore関数に登録するReducerが単数の場合は、それがStore
 </details>
 
 <details>
-<summary>TodoContainer.tsxの定義・RootState型の定義</summary>
+<summary  style="cursor:pointer;">▶︎TodoContainer.tsxの定義・RootState型の定義</summary>
 
 Slice側は仮ではありますが実装できたので、TodoContainer.tsxを定義します。
 
@@ -824,7 +775,7 @@ export type RootState = ReturnType<typeof store.getState>
 </details>
 
 <details>
-<summary>TodoPresenter.tsxの定義</summary>
+<summary  style="cursor:pointer;">▶︎TodoPresenter.tsxの定義</summary>
 
 このアプリではTodoアプリの表示部分を担当します。
 Todoリストを表示します。 まずは、色々な機能を作る前に基盤を作りたいので下記のようなコードにします。
@@ -880,7 +831,7 @@ export const TodoPresenter : React.FC<TodoPresenterProps> = ({
 </details>
 
 <details>
-<summary>Providerの定義</summary>
+<summary  style="cursor:pointer;">▶︎Providerの定義</summary>
 Stateを使いたいルートコンポーネントを囲う形で使います。
 
 TodoContainerをルートコンポーネントにStateを使いたいので、「App.tsx」を次のように書き換えます。
@@ -906,7 +857,7 @@ export default App;
 </details>
 
 <details>
-<summary>アプリの起動</summary>
+<summary  style="cursor:pointer;">▶︎アプリの起動</summary>
 
 下記のコマンドで起動してみましょう。
 ```bash
@@ -915,11 +866,13 @@ npm start
 自動で開くと思いますが、開かない方は「http://localhost:3000/」にアクセスしてください。
 
 次のようにStateを定義したときに入れたサンプルデータが2件分、表示されていればうまくいっています。
-![redux-todo-test1](./blogimage/Redux-toolkit-todo/redux-toolkit-test1.png)
+<div align="center">
+[f:id:koki_matsura:20221102095110p:plain]
+</div>
 </details>
 
 <details>
-<summary>Todoの追加機能</summary>
+<summary  style="cursor:pointer;">▶︎Todoの追加機能</summary>
 送信ボタンを押すと、Todoを追加できるようにします。
 
 手順を説明します。
@@ -942,11 +895,11 @@ reducers: {
 ```
 Reduxとかなり違った書き方をしたと思いますが、ReduxのReducerとの大きな違いは以下2つが挙げられます。
 
-・　Switch文による分岐
+**・　Switch文による分岐**
 
 Reduxではdispatchにより送られてくるActionのタイプをSwitch文で分岐させていたのですが、Redux ToolkitではSwitchが文を書かなくても問題ありません。
 
-・　イミュータブル性
+**・　イミュータブル性**
 
 Reduxは原則としてStateの値は変更してはならず、前のStateにActionを施したオブジェクトを返す仕組みでした。今回のようなオブジェクトだとそれほど苦労しませんが、ネストが深いオブジェクトの場合はかなり苦労します。
 
@@ -1000,7 +953,7 @@ ReduxのTodoアプリ同様の操作でTodoを追加できるようになって�
 </details>
 
 <details>
-<summary>Todoの削除機能</summary>
+<summary  style="cursor:pointer;">▶︎Todoの削除機能</summary>
 追加処理と仕組みは同じです。
 
 それぞれのTodoについている削除ボタンを押すと、リストから削除されるようにします。
@@ -1036,7 +989,7 @@ ReduxのTodoアプリ同様の操作でTodoを削除できるようになって�
 </details>
 
 <details>
-<summary>完了・未完了の切り替え機能</summary>
+<summary  style="cursor:pointer;">▶︎完了・未完了の切り替え機能</summary>
 それぞれのTodoについている完了ボタンを押すと、タイトルの横の「未完了」テキストが「完了」テキストになるようにします。また、完了ボタンは「戻る」というテキストのボタンに変化します。
 この戻るボタンを押すと、完了ボタンとは逆の操作をします。
 
@@ -1075,7 +1028,7 @@ argsにtoggleComplete関数を渡して、「TodoPresenter.tsx」では、完了
 </details>
 
 <details>
-<summary>まとめ</summary>
+<summary  style="cursor:pointer;">▶︎まとめ</summary>
 Redux Toolkitを用いたTodoアプリの作成が終わりました。
 
 Reduxと比べると、StateとReducer、ActionをSliceで管理するというのが特徴的だったと思います。また、そのおかげでファイル数も少なく、記述量も少なくなりました。
@@ -1085,9 +1038,9 @@ Stateの更新もミュータブルにできるので単純で分かりやすい
 公式がReduxよりもRedux Toolkitをお勧めする理由もわかります。
 </details>
 
-### RecoilによるTodoアプリ作成
+## RecoilによるTodoアプリ作成
 <details>
-<summary>初期設定</summary>
+<summary  style="cursor:pointer;">▶︎初期設定</summary>
 プロジェクト作成後、下記のコマンドでプロジェクトに移動して、Recoilを使えるようにします。
 
 ```bash
@@ -1096,10 +1049,11 @@ npm i recoil
 ```
 </details>
 <details>
-  <summary>ディレクトリ構成</summary>
+  <summary  style="cursor:pointer;">▶︎ディレクトリ構成</summary>
 Recoilを用いるときのディレクトリ構成は以下のようにします。
-
-![recoilディレクトリ](./blogimage/Recoil-todo/recoilディレクトリ構成.png)
+<div align="center">
+[f:id:koki_matsura:20221102142759p:plain]
+</div>
 
 commonディレクトリ、featuresディレクトリ、featuresディレクトリの中にtodosディレクトリを作成します。
 
@@ -1122,7 +1076,7 @@ commonディレクトリ、featuresディレクトリ、featuresディレクト�
 </details>
 
 <details>
-<summary>Todo型の定義</summary>
+<summary  style="cursor:pointer;">▶︎Todo型の定義</summary>
 Todo型を下記のように定義します。
 
 ```typescript
@@ -1136,7 +1090,7 @@ export type Todo = {
 ```
 </details>
 <details>
-<summary>Keyの定義</summary>
+<summary  style="cursor:pointer;">▶︎Keyの定義</summary>
 KeyはAtomやSelectorに必須です。これは、AtomやSelectorにおける特定の高度なAPIに使用されるため、複数のAtomが同じキーを持つことは禁止されています。
 
 今回の場合はTodoを管理するAtomが一つ、それを加工するSelectorが一つのため、Keyが重複する心配はそれほどありませんが、今後、状態が増えたりする可能性がある場合に重複させないためにもKeyを一元管理させます。
@@ -1151,7 +1105,7 @@ export const AtomKeys = {
 ```
 </details>
 <details>
-<summary>Atomの定義</summary>
+<summary  style="cursor:pointer;">▶︎Atomの定義</summary>
 Keyを定義できたので、「todoState.ts」にAtomを定義します。
 
 Atomで定義するものはKeyとStateのみです。Reducerのようなものは書きません。
@@ -1178,7 +1132,7 @@ export const todosState = atom({
 ```
 </details>
 <details>
-<summary>TodoContainer.tsxの定義</summary>
+<summary  style="cursor:pointer;">▶︎TodoContainer.tsxの定義</summary>
 このファイルではTodoアプリのロジック部分を担当します。
 
 Redux・Redux ToolkitではuseSelectorでStoreの全Stateを取得していましたが、RecoilではStoreのようなものはなく、Atom単位で取得してきます。
@@ -1205,7 +1159,7 @@ export const TodoContainer = () => {
 ```
 </details>
 <details>
-<summary>TodoPresenter.tsxの定義</summary>
+<summary  style="cursor:pointer;">▶︎TodoPresenter.tsxの定義</summary>
 このアプリではTodoアプリの表示部分を担当します。
 
 Todoリストを表示します。
@@ -1260,7 +1214,7 @@ export const TodoPresenter : React.FC<TodoPresenterProps> = ({
 一旦、これで置いておきます。
 </details>
 <details>
-<summary>RecoilRootの定義</summary>
+<summary  style="cursor:pointer;">▶︎RecoilRootの定義</summary>
 Redux・Redux Toolkitでは、Stateを使用するコンポーネントをProviderで囲んでいました。
 
 Recoilでも原理は同じでStateを使用するコンポーネントをRecoilRootで囲みます。
@@ -1285,7 +1239,7 @@ export default App;
 ```
 </details>
 <details>
-<summary>アプリの起動</summary>
+<summary  style="cursor:pointer;">▶︎アプリの起動</summary>
 下記のコマンドで起動してみましょう。
 
 ```bash
@@ -1294,11 +1248,12 @@ npm start
 自動で開くと思いますが、開かない方は「http://localhost:3000/」にアクセスしてください。
 
 次のようにStateを定義したときに入れたサンプルデータが2件分、表示されていればうまくいっています。
-
-![recoil-todoテスト](./blogimage/Recoil-todo/recoil-todo-test1.png)
+<div align="center">
+[f:id:koki_matsura:20221102095110p:plain]
+</div>
 </details>
 <details>
-<summary>Selectorの定義</summary>
+<summary  style="cursor:pointer;">▶︎Selectorの定義</summary>
 新しいTodoを作成するときに必要となるIDはその時点のtodosが持つTodoの最大のIDにプラス１した値を割り当てます。
 
 Redux・Redux Toolkitでは、ContainerでmaxIDにtodos中の最大IDを取得させていました。
@@ -1326,7 +1281,7 @@ export const maxIDSelector = selector<number>({
 SelectorはAtomを加工して取得する以外に、Atomの値を変更することも可能です。
 </details>
 <details>
-<summary>Todoの追加機能</summary>
+<summary  style="cursor:pointer;">▶︎Todoの追加機能</summary>
 送信ボタンを押すと、Todoを追加できるようにします。
 手順を説明します。
 
@@ -1382,7 +1337,7 @@ const sendTodo = () => {
 Todoを追加できるようになっていれば問題ありません。
 </details>
 <details>
-<summary>Todoの削除機能</summary>
+<summary  style="cursor:pointer;">▶︎Todoの削除機能</summary>
 それぞれのTodoについている削除ボタンを押すと、リストから削除されるようにします。
 
 AtomからTodoを削除する関数「addTodo」を作成します。
@@ -1408,7 +1363,7 @@ argsにremoveTodo関数を渡して、「TodoPresenter.tsx」では、削除ボ�
 ReduxのTodoアプリ同様の操作でTodoを削除できるようになっているかと思います。
 </details>
 <details>
-<summary>完了・未完了の切り替え機能</summary>
+<summary  style="cursor:pointer;">▶︎完了・未完了の切り替え機能</summary>
 それぞれのTodoについている完了ボタンを押すと、タイトルの横の「未完了」テキストが「完了」テキストになるようにします。また、完了ボタンは「戻る」というテキストのボタンに変化します。
 
 この戻るボタンを押すと、完了ボタンとは逆の操作をします。
@@ -1448,7 +1403,7 @@ argsにtoggleComplete関数を渡して、「TodoPresenter.tsx」では、完了
 完了ボタンを押すと、それぞれのTodoタイトルの横の「未完了」が「完了」に切り替わることが確認できると思います。
 </details>
 <details>
-<summary>まとめ</summary>
+<summary  style="cursor:pointer;">▶︎まとめ</summary>
 Reduxのように一箇所に状態を集めて管理する方法ではなく、AtomやSelectorという単位で状態を管理することで更新のたびにアプリケーション全体の状態を上書きする必要がなくなりました。
 
 また、状態の操作をReducerではなく、Hooks APIを使って行うのでState側で定義することがかなり減ったと思います。
@@ -1458,7 +1413,7 @@ Reduxのように一箇所に状態を集めて管理する方法ではなく、
 そのため、直接AtomやSelectorを操作するのではなく、カスタムフックを用いて操作するなどの対策をとることで大規模なアプリケーションでも安全に使えるのかなと思います。
 </details>
 
-### 終わりに
+## 終わりに
 
 Redux・Redux Toolkit・RecoilのそれぞれにおいてTodoアプリを通して、基本的な仕組みや特徴を紹介させていただきました。
 
