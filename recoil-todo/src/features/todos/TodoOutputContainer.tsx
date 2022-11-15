@@ -6,6 +6,7 @@ export const TodoOutputContainer = () => {
     const todos = useRecoilValue(todosSelector);
     const removeTodo = useTodo.useRemoveTodo();
     const toggleComplete = useTodo.useToggleComplete();
+    console.log("output");
     
     return <TodoOutputPresenter todos={todos} removeTodo={removeTodo} toggleComplete={toggleComplete}/>;
 }

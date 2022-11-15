@@ -1,6 +1,6 @@
 こんにちは！ラクス入社1年目のkoki_matsuraです。
 
-本日は、Recoilの基本的な状態管理や仕組みをTodoアプリ作成を通して、ご紹介させていただきます。
+本日は、前半では、Recoilの基本的な機能を用いてTodoアプリ作成をし、後半では作成したTodoアプリをリファクタリングしながらもう少し踏み込んだ使い方をご紹介させていただきます。
 
 こちらの記事は「Todoアプリ作成を通したReactの状態管理ライブラリ基礎学習」の3部目です。
 「Redux編」「Redux-Toolkit編」もあるので、良ければ読んでいただけると嬉しいです。
@@ -144,9 +144,7 @@ export const AtomKeys = {
     "TODOS_STATE" : "todosState"
 }
 ```
-</details>
-<details>
-<summary  style="cursor:pointer;">▶︎Atomの定義</summary>
+### Atomの定義
 Keyを定義できたので、「todoState.ts」にAtomを定義します。
 
 Atomで定義するものはKeyとStateのみです。Reducerのようなものは書きません。
@@ -432,6 +430,16 @@ argsにtoggleComplete関数を渡して、「TodoPresenter.tsx」では、完了
  <button type='button' onClick={() => toggleComplete(todo.id)}>{todo.isCompleted ? "戻す" : "完了"}</button>
 ```
 完了ボタンを押すと、それぞれのTodoタイトルの横の「未完了」が「完了」に切り替わることが確認できると思います。
+
+## Todoアプリのリファクタリング
+ここからは前半で作成したTodoアプリのリファクタリングをしていきたいと思います。
+### 改善点
+現時点で一通り、追加・削除・切り替えの機能は完成し、動いていると思いますが何点か改善するべき点があります。
+
+・　
+### カプセル化
+
+### AtomFamilyの導入
 
 ##　終わりに
 Recoilを用いたTodoアプリの作成を通して、基本的な使い方や仕組みをご紹介させていただきました。

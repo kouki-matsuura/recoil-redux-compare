@@ -1,15 +1,13 @@
 import React from 'react';
 import { RecoilRoot } from 'recoil';
 import { SamplePresenter } from './features/todos/SamplePresenter';
-import { TodoInputContainer } from './features/todos/TodoInputContainer';
-import { TodoOutputContainer } from './features/todos/TodoOutputContainer';
+import { TodoContainer } from './features/todos/TodoContainer';
 
 function App() {
   return (
     <div className="App">
       <RecoilRoot>
-        <TodoInputContainer />
-        <TodoOutputContainer />
+        <TodoContainer />
         <SamplePresenter />
       </RecoilRoot>
     </div>
