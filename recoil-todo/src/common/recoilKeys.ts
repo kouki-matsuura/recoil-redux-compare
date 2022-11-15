@@ -3,5 +3,6 @@ export const AtomKeys = {
 }
 
 export const SelectorKeys = {
-    "TODO_MAXID" : "todoMaxId"
+    "TODO_MAXID" : "todoMaxId",
+    "TODO_TODOS" : "todoTodos",
 }

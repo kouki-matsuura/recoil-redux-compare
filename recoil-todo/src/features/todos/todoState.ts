@@ -1,8 +1,8 @@
-import { atom, selector } from 'recoil';
+import { atom, selector, useRecoilCallback, useRecoilState, useRecoilValue } from 'recoil';
 import { AtomKeys, SelectorKeys } from '../../common/recoilKeys';
 import { Todo } from '../../common/todo.type';
 
-export const todosState = atom<Todo[]>({
+const todosState = atom<Todo[]>({
   key: AtomKeys.TODOS_STATE,
   default: [
     {
@@ -20,9 +20,57 @@ export const todosState = atom<Todo[]>({
   ],
 });
 
-export const maxIDSelector = selector<number>({
-  key: SelectorKeys.TODO_MAXID,
-  get: ({get}) => {
-    return get(todosState).length ? get(todosState).slice(-1)[0].id : 0
-  }
-})
+ type TodoActions = {
+  useAddTodo: () => (title: string, content: string) => void,
+  useRemoveTodo: () => (id: number) => void,
+  useToggleComplete: () => (id: number) => void,
+ }
+
+ let id = 3;
+ const getID = () => {
+  return id++;
+ }
+
+export const useTodo: TodoActions = {
+
+  /** Todoを新規追加 */
+  useAddTodo: () =>
+    useRecoilCallback(({ set }) => (title: string, content: string) => {
+      console.log("useAddTodo")
+      set(todosState, (todos) => {
+        const newTodo: Todo = {
+          id: getID(),
+          title: title,
+          content: content,
+          isCompleted: false,
+        }
+        return [...todos, newTodo];
+      })
+    },[getID] ),
+  
+  useRemoveTodo: () =>
+    useRecoilCallback(({ set }) => (id: number) => {
+      console.log("removeTodo")
+      set(todosState, (todos) => {
+        return todos.filter((todo) => todo.id !== id)
+      })
+    },[]),
+
+  useToggleComplete: () =>
+    useRecoilCallback(({ set }) => (id: number) => {
+      console.log("toggleComplete")
+      set(todosState, (todos) => {
+        const newTodos = todos.map((todo) => 
+        todo.id === id
+        ? {...todo, isCompleted: !todo.isCompleted}
+        : todo
+        )
+        return newTodos
+      })
+    },)
+}
+
+export const todosSelector = selector<Todo[]>({
+  key: SelectorKeys.TODO_TODOS,
+  get: ({ get }) => get(todosState)
+});
