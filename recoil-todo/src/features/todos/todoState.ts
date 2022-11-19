@@ -1,5 +1,5 @@
-import { atom, atomFamily, selector, selectorFamily, useRecoilCallback, useRecoilValue } from 'recoil';
-import { AtomKeys, SelectorKeys } from '../../common/recoilKeys';
+import { atom, atomFamily, selector, selectorFamily, useRecoilCallback, useRecoilTransaction_UNSTABLE, useRecoilValue } from 'recoil';
+import { AtomFamilyKeys, AtomKeys, SelectorKeys } from '../../common/recoilKeys';
 import { Todo } from '../../common/todo.type';
 
 // export const todosState = atom<Todo[]>({
@@ -25,6 +25,22 @@ const todoState = atomFamily<Todo|null, number>({
     default: null
 })
 
+/**TODO: ドメイン設計版 */
+// const todoTitle = atomFamily<string, number>({
+//   key: AtomFamilyKeys.TODO_TITLE_STATE,
+//   default: ""
+// })
+
+// const todoContent = atomFamily<string, number>({
+//   key: AtomFamilyKeys.TODO_CONTENT_STATE,
+//   default: ""
+// })
+
+// const todoComplete = atomFamily<boolean, number>({
+//   key: AtomFamilyKeys.TODO_COMPLETE_STATE,
+//   default: false
+// })
+
 const todoIdState = atom<number[]>({
   key: AtomKeys.TODO_ID_STATE,
   default: []
@@ -35,7 +51,29 @@ const getId = () => {
   return id++;
 }
 
-export const useTodo = () => {
+const stateTodos = selector({
+  key: "state-todos",
+  get: ({ get }) => {
+    const todoIds = get(todoIdState);
+    return todoIds.map((todoId) => get(todoState(todoId)));
+  },
+})
+
+export const useGetTodos = () => {
+  const todoIds =  useRecoilValue(todoIdState);
+
+  const useGetTodo = (id:number) => useRecoilValue(todoState(id));
+
+  const allTodos = useRecoilValue(stateTodos);
+
+  return {
+    todoIds,
+    useGetTodo,
+    allTodos,
+  }
+
+}
+export const useTodoAction = () => {
   /** 追加処理 */
   const addTodo = useRecoilCallback(({ set }) => (title: string, content: string) => {
     const newTodo: Todo = {
@@ -56,14 +94,21 @@ export const useTodo = () => {
   })
 
   /** 完了の切り替え */
-  const toggleComplete = useRecoilCallback(({ set }) => (targetId : number) => {
-    const targetTodo = {
-      
+  const toggleComplete = useRecoilTransaction_UNSTABLE(({get, set}) => (targetId: number) => {
+    const targetTodo = get(todoState(targetId))
+    const newTodo: Todo = {
+      id: targetTodo!.id,
+      title: targetTodo!.title,
+      content: targetTodo!.content,
+      isCompleted: !targetTodo!.isCompleted
     }
-    set(todoState(targetId), )
-  })
-
-  const useGetTodoIds =  () => useRecoilValue(todoIdState);
-
-  const useGetTodo = (id:number) => useRecoilValue(todoState(id))
+    set(todoState(targetId), newTodo);
+  });
+  return {
+    addTodo,
+    removeTodo,
+    toggleComplete,
+  }
 }
+
+
