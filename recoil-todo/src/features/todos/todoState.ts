@@ -1,4 +1,4 @@
-import { atom, atomFamily, selector, selectorFamily, useRecoilCallback, useRecoilTransaction_UNSTABLE, useRecoilValue } from 'recoil';
+import { atom, atomFamily, selector, selectorFamily, useRecoilCallback, useRecoilValue } from 'recoil';
 import { AtomFamilyKeys, AtomKeys, SelectorKeys } from '../../common/recoilKeys';
 import { Todo } from '../../common/todo.type';
 
@@ -55,14 +55,17 @@ const stateTodos = selector({
   key: "state-todos",
   get: ({ get }) => {
     const todoIds = get(todoIdState);
-    return todoIds.map((todoId) => get(todoState(todoId)));
+    return todoIds.map((todoId) => 
+      get(todoState(todoId))
+      
+    )
   },
 })
 
 export const useGetTodos = () => {
   const todoIds =  useRecoilValue(todoIdState);
 
-  const useGetTodo = (id:number) => useRecoilValue(todoState(id));
+  const useGetTodo =  (id:number) => useRecoilValue(todoState(id));
 
   const allTodos = useRecoilValue(stateTodos);
 
@@ -91,19 +94,16 @@ export const useTodoAction = () => {
   const removeTodo = useRecoilCallback(({ set, reset }) => (targetId : number) => {
     set(todoIdState, prev => prev.filter(id => id !== targetId));
     reset(todoState(targetId))
-  })
+  }, [])
 
   /** 完了の切り替え */
-  const toggleComplete = useRecoilTransaction_UNSTABLE(({get, set}) => (targetId: number) => {
-    const targetTodo = get(todoState(targetId))
-    const newTodo: Todo = {
-      id: targetTodo!.id,
-      title: targetTodo!.title,
-      content: targetTodo!.content,
-      isCompleted: !targetTodo!.isCompleted
-    }
-    set(todoState(targetId), newTodo);
-  });
+  const toggleComplete = useRecoilCallback(({set}) => (targetId: number) => {
+      set(todoState(targetId), currVal => {
+        if (!currVal) return null
+
+        return {...currVal, isCompleted: !currVal.isCompleted}
+      })
+  }, [])
   return {
     addTodo,
     removeTodo,
