@@ -4,5 +4,5 @@ export const AtomKeys = {
 }
 
 export const SelectorKeys = {
-    "TODO_MAXID" : "todoMaxId"
+    "TODO_NEWID" : "todoNewId"
 }

@@ -1,4 +1,4 @@
-import { atom, atomFamily, selector } from 'recoil';
+import { atom, atomFamily, selector, useRecoilCallback } from 'recoil';
 import { AtomKeys, SelectorKeys } from '../../common/recoilKeys';
 import { Todo } from '../../common/todo.type';
 
@@ -29,9 +29,40 @@ const todoIdState = atom<number[]>({
   key: AtomKeys.TODOID_STATE,
   default: []
 })
-export const maxIDSelector = selector<number>({
-  key: SelectorKeys.TODO_MAXID,
-  get: ({get}) => {
-    return get(todosState).length ? get(todosState).slice(-1)[0].id : 0
+
+let id = 1;
+const getId = () => {
+  return id++;
+}
+
+export const useTodoAction = () => {
+  /** 追加処理 */
+  const addTodo = useRecoilCallback(({ set }) => (title: string, content: string) => {
+    const newTodo: Todo = {
+      id : getId(),
+      title : title,
+      content : content,
+      isCompleted: false
+    }
+    set(todoIdState, prev => [...prev, newTodo.id]);
+    set(todosState(newTodo.id), newTodo);
+  }, [])
+  /** 削除処理 */
+  const removeTodo = useRecoilCallback(({ set, reset }) => (targetId : number) => {
+    set(todoIdState, prev => prev.filter(id => id !== targetId));
+    reset(todosState(targetId))
+  }, [])
+
+  /** 完了の切り替え */
+  const toggleComplete = useRecoilCallback(({set}) => (targetId: number) => {
+      set(todosState(targetId), todo => {
+        if (!todo) return null
+        return {...todo, isCompleted: !todo.isCompleted}
+      })
+  }, [])
+  return {
+    addTodo,
+    removeTodo,
+    toggleComplete,
   }
-})
+}
