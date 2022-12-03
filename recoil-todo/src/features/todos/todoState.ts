@@ -1,4 +1,4 @@
-import { atom, atomFamily, selector, useRecoilCallback } from 'recoil';
+import { atom, atomFamily, selector, useRecoilCallback, useRecoilValue } from 'recoil';
 import { AtomKeys, SelectorKeys } from '../../common/recoilKeys';
 import { Todo } from '../../common/todo.type';
 
@@ -29,6 +29,25 @@ const todoIdState = atom<number[]>({
   key: AtomKeys.TODOID_STATE,
   default: []
 })
+
+const getAllTodos = selector({
+  key: SelectorKeys.GET_ALL_TODOS,
+  get: ({ get }) => {
+    const todoIds = get(todoIdState);
+    return todoIds.map((todoId) => 
+      get(todosState(todoId))
+      
+    )
+  },
+})
+
+
+export const useGetTodoAction = () => {
+  /** 全件取得 */
+  const allTodos = useRecoilValue(getAllTodos);
+
+  return { allTodos }
+}
 
 let id = 1;
 const getId = () => {

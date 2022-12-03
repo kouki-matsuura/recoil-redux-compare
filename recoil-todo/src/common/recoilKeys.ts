@@ -4,5 +4,5 @@ export const AtomKeys = {
 }
 
 export const SelectorKeys = {
-    "TODO_NEWID" : "todoNewId"
+    "GET_ALL_TODOS" : "getAllTodos" 
 }
