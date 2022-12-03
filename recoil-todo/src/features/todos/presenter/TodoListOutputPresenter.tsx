@@ -1,34 +1,31 @@
 import React  from "react"
 import { Todo } from "../../../common/todo.type"
+import { TodoContainer } from "../container/TodoContainer"
 import { SamplePresneter } from "./SamplePresenter"
-import { TodoOutput } from "./TodoOutput"
-type TodoOutputPresenterProps = {
+import { TodoPresenter } from "./TodoPresenter"
+type TodoListOutputPresenterProps = {
     todoIds : number[]
-    allTodos: (Todo|null)[]
     removeTodo : (id: number) => void
     toggleComplete : (id: number) => void
 }
-export const TodoOutputPresenter: React.FC<TodoOutputPresenterProps> =({
+export const TodoListOutputPresenter: React.FC<TodoListOutputPresenterProps> =({
     todoIds,
-    allTodos,
     removeTodo,
     toggleComplete,
 }) => {
+    console.log("出力部のレンダリング")
     return (
         <>
             <SamplePresneter />
             {
-            allTodos.map((todo)=> 
-                todo ?
-                    <TodoOutput 
-                    key={todo.id}
-                    todo={todo} 
+            todoIds.map((todoId)=> 
+                    <TodoContainer
+                    key={todoId}
+                    todoId={todoId} 
                     removeTodo={removeTodo}
                     toggleComplete={toggleComplete}
                     />
-                :
-                    <></>
-                )
+            )
             }
         </>
     )

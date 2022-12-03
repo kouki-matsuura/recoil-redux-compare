@@ -1,9 +1,9 @@
 import { useState } from "react"
 
-type TodoInputPresenterProps = {
+type TodoListInputPresenterProps = {
     addTodo: (title: string, content: string) => void
 }
-export const TodoInputPresenter : React.FC<TodoInputPresenterProps> = ({
+export const TodoListInputPresenter : React.FC<TodoListInputPresenterProps> = ({
     addTodo
 }) => {
     const [title, setTitle] = useState("");

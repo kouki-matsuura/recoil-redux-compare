@@ -2,12 +2,12 @@ import { memo } from "react";
 import { Todo } from "../../../common/todo.type";
 import { useGetTodos } from "../todoState";
 
-type TodoOutputProps = {
+type TodoProps = {
     todo : Todo
     removeTodo : (id: number) => void
     toggleComplete : (id: number) => void
 }
-export const TodoOutput : React.FC<TodoOutputProps>= memo(({
+export const TodoPresenter : React.FC<TodoProps>= memo(({
     todo,
     removeTodo,
     toggleComplete,

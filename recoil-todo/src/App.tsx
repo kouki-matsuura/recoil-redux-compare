@@ -1,12 +1,12 @@
 import React from 'react';
 import { RecoilRoot } from 'recoil';
-import { TodoContainer } from './features/todos/container/TodoContainer';
+import { TodoListContainer } from './features/todos/container/TodoListContainer';
 
 function App() {
   return (
     <div className="App">
       <RecoilRoot>
-        <TodoContainer />
+        <TodoListContainer />
       </RecoilRoot>
     </div>
   );
