@@ -1,13 +1,20 @@
 import { useState } from "react";
 
-export const TodoInputPresenter = () => {
+type TodosInputPresenterProps = {
+    addTodo : (title: string, content: string) => void
+}
+export const TodosInputPresenter : React.FC<TodosInputPresenterProps> = ({
+    addTodo
+}) => {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
 
     const sendTodo = () => {
+        addTodo(title, content);
         setTitle("")
         setContent("")
     }
+
 
     return (
         <form>

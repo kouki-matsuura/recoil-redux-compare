@@ -4,5 +4,5 @@ export const AtomKeys = {
 }
 
 export const SelectorKeys = {
-    "GET_ALL_TODOS" : "getAllTodos" 
+    "GET_TODO" : "get_todo" 
 }
